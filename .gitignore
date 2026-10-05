@@ -6,6 +6,10 @@
 data/*
 !data/.gitkeep
 
+# Deliverable sub-data folders follow the same rule.
+deliverable1/data/*
+!deliverable1/data/.gitkeep
+
 # --- Agent / private working notes ----------------------------------------
 # Scratch planning files (see AGENTS.md) — never part of a PR.
 .planning/
