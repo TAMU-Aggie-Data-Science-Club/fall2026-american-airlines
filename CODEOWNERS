@@ -1,0 +1,44 @@
+# CODEOWNERS - project roster + review policy
+#
+# This file is BOTH the team roster AND the code-owner rule for this repo.
+# The rule at the bottom (starting with `*`) is what GitHub enforces:
+# it auto-requests review from the listed owners on any PR into `main`.
+
+# Project Managers (code owners for main-branch merges)
+# Full name        GitHub handle    Email
+# @HrudithL
+# @tanishajhaveri
+
+# Members
+# Full name        GitHub handle    Email
+# Members are listed here when they join. These comments do not grant review authority.
+
+# @dhruvraajeev
+# @ahnsh0809
+# @Wasdawad75
+# @srilasyakamma
+# @tanishajhaveri
+# @khoahonguyen0210
+# @arsheri07
+# @diyarajganesh-jpg
+# @AsvM45
+# @NecroArcNeo
+# @AkshajRamesh
+# @Elijahu13
+# @akshathkumarr
+# @RajRanga8
+# @cheiman2007
+# Review policy
+# Everyone listed on the rule below is a Code Owner. GitHub will require
+# at least one of them to approve any PR targeting `main`.
+#
+# PMs are active reviewers for ordinary project changes.
+
+* @TAMU-Aggie-Data-Science-Club/officers @HrudithL @tanishajhaveri
+
+# Officer-locked paths
+# Workflows and secret-scanning config carry security implications.
+# Changes here require officer approval regardless of who the PMs are.
+
+/.github/       @TAMU-Aggie-Data-Science-Club/officers
+/.gitleaks.toml @TAMU-Aggie-Data-Science-Club/officers
