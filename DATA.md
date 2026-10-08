@@ -28,12 +28,13 @@ Choosing and vetting a source is a **judgment call** — surface it to a PM rath
 
 ## Source register
 
-Document every source here as you adopt it. Replace these placeholders.
+Document every source here as you adopt it.
 
 | Source | Origin / URL | Access method | License | Sensitivity | Notes |
 |--------|--------------|---------------|---------|-------------|-------|
-| _e.g. Example Open Dataset_ | `https://…` | Manual download → `data/raw/` | CC-BY-4.0 | None | Updated annually |
-| | | | | | |
+| Flight Price Prediction (EaseMyTrip), Shubham Bathwal, version 2 | https://www.kaggle.com/datasets/shubhambathwal/flight-price-prediction | Download version 2 from Kaggle; extract only `Clean_Dataset.csv` to `deliverable1/data/` as required by Deliverable 1 | CC0: Public Domain (Kaggle metadata, verified October 6, 2026) | Public flight listings; inspected columns contain no passenger names, contact details or booking identifiers | Indian domestic flight listings, prices in INR; 2022 snapshot, not current American Airlines fares. The notebook removes the exported row index and normalizes column names. Raw data stays local and git-ignored. |
+
+For the exact assigned archive, use [Kaggle's version 2 download](https://www.kaggle.com/api/v1/datasets/download/shubhambathwal/flight-price-prediction?datasetVersionNumber=2). `deliverable1/data/` is the assignment-specific exception to the general local layout below; do not commit the downloaded CSV or archive.
 
 ## Local layout convention
 
