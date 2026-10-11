@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 # Load the dataset
-df = pd.read_csv("data/Clean_Dataset.csv")
+df = pd.read_csv("deliverable1/data/Clean_Dataset.csv")
 
 # Columns to analyze
 columns = ["price", "duration", "days_left"]
