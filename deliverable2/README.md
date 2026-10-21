@@ -2,7 +2,7 @@
 
 > **Due:** Monday, November 2, 2026
 > **Owner:** every member, working inside an assigned team
-> **Branches:** you work on `team-##/<your-name>` → PR into `team-##/main` → a PM merges `team-##/main` into `main`
+> **Branches:** you work on your own member branch → PR into your team's trunk branch → a PM merges the trunk into `main`
 > **Notebook:** [`flight_price_modeling.ipynb`](flight_price_modeling.ipynb)
 
 ---
@@ -53,18 +53,22 @@ By the end you should be able to:
 
 ```
 main                          <- protected. Only a PM merges here.
- └── team-07/main             <- your team's integration branch
-      ├── team-07/alex-chen
-      ├── team-07/priya-r
-      └── team-07/sam-lee
+ └── team-06/main             <- your team's trunk branch
+      ├── team-06/alex-chen
+      ├── team-06/priya-r
+      └── team-06/sam-lee
 ```
+
+**The structure is the requirement; the names are a suggestion.** Your team needs one trunk
+branch and one branch per member that merges into it. What you call them is up to your team —
+several teams already use different shapes, and that is fine.
 
 | | |
 |---|---|
-| **Your team trunk** | `team-##/main` — zero-padded, so team 7 is `team-07` |
-| **Your personal branch** | `team-##/<your-name>` — e.g. `team-07/alex-chen` |
-| **Your PR target** | `team-##/main` — **not** `main` |
-| **Who merges to `main`** | a PM, reviewing `team-##/main` once every member has merged in |
+| **Your team trunk** | suggested: `team-##/main` — zero-padded, so team 6 is `team-06` |
+| **Your personal branch** | suggested: `team-##/<your-name>` — e.g. `team-06/alex-chen` |
+| **Your PR target** | your team's trunk — **not** `main` |
+| **Who merges to `main`** | a PM, reviewing the trunk once every member has merged in |
 
 ### 1. One person per team creates the trunk (once)
 
@@ -73,20 +77,28 @@ Coordinate so this happens exactly once. If it already exists, skip to step 2.
 ```sh
 git switch main
 git pull origin main
-git switch -c team-07/main          # your team number
-git push -u origin team-07/main
+git switch -c team-06/main          # your team number
+git push -u origin team-06/main
+```
+
+**If that is refused with `cannot lock ref ... exists`**, a plain branch named `team-##` already
+occupies the name. Not a problem, and nothing needs deleting — just use a free name:
+
+```sh
+git switch -c team-06-main          # a dash instead of a slash always works
+git push -u origin team-06-main
 ```
 
 Then tell your team in your Discord thread that the trunk exists.
 
 ### 2. Everyone else branches off the trunk
 
-Note the branch point: off `origin/team-07/main`, **not** off `main`.
+Note the branch point: off your team's trunk, **not** off `main`.
 
 ```sh
 git fetch origin
-git switch -c team-07/alex-chen origin/team-07/main
-git push -u origin team-07/alex-chen
+git switch -c team-06/alex-chen origin/team-06/main
+git push -u origin team-06/alex-chen
 ```
 
 ### 3. Get the data and packages in place
@@ -110,7 +122,7 @@ Commit as you finish each section rather than in one lump — small commits are 
 
 ### 5. Open a PR into your team trunk
 
-On GitHub, open a PR from `team-07/alex-chen` → `team-07/main`. **Check the base branch.** GitHub defaults it to `main`, and you have to change it by hand every time.
+On GitHub, open a PR from your member branch → your team's trunk. **Check the base branch.** GitHub defaults it to `main`, and you have to change it by hand every time.
 
 ### 6. Review a teammate
 
@@ -136,7 +148,7 @@ A `.ipynb` is JSON. Git conflicts inside it are genuinely unpleasant, and most a
 
 1. **Clear outputs before every commit.** Kernel → Restart & Clear Output. The large majority of notebook conflicts are rendered output and base64 image blobs, not code.
 2. **Do not split this notebook across teammates.** Each member completes their own full copy on their own branch. The notebook is individual learning; `TEAM_REPORT.md` is the shared artifact. Four people on four branches editing four copies never conflict with each other — the only merge is into the trunk.
-3. **Pull the trunk before you push.** `git fetch origin && git merge origin/team-07/main`.
+3. **Pull the trunk before you push.** `git fetch origin && git merge origin/team-06/main`.
 
 **If you do hit a conflict in a notebook:**
 
@@ -187,7 +199,8 @@ Your PR into `team-##/main` is done when:
 | Random Forest takes forever / eats RAM | Expected: an unbounded forest on ~240k rows grows huge trees. Set `max_depth=20` or subsample, and **report it** — "RF needed 10× the fit time" is a legitimate finding. |
 | ARIMA convergence warnings | Expected. 40 training points is a very small sample. Say so in your write-up rather than hiding it. |
 | Cross-validation takes forever | 5 folds × 300 trees × 300k rows. Subsample to 80,000 for the CV cells and note it. Keep `n_jobs=1` in `cross_validate` — XGBoost already parallelises, and nesting them fights over cores. |
-| `cannot lock ref 'team-07/main'` | You tried to create a branch whose name has `team-07/main` as a prefix. Branch names must be flat leaves: `team-07/alex-chen`, never `team-07/main/anything`. |
+| `cannot lock ref ... exists` | A branch name cannot be a *prefix* of another, because git stores refs as file paths. If a plain `team-07` branch exists then `team-07/main` is impossible — use `team-07-main` instead. Nothing needs deleting. |
+| `refname conflict` during `git fetch` | Harmless, and local to your clone: a branch was renamed on GitHub and your clone still holds the old tracking ref. It does not affect pulling `main`, and it does not affect anyone else. `git remote prune origin` clears it — that only removes your clone's bookkeeping, never a real branch. |
 | Notebook won't open after a merge | Conflict markers in the JSON. `git merge --abort`, then see above. |
 
 Ask in the project Discord thread before you lose an evening. Describe what you tried — a question with a traceback and an attempt in it gets a much better answer than "it's broken".

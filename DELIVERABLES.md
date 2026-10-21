@@ -9,7 +9,7 @@
 | 3 | Tuning & Error Analysis | Hyperparameter search over the chosen model, learning curves, regularisation, segment-level error analysis | Teams | `team-##/<name>` → `team-##/main` → `main` | Weeks 5–6 |
 | 4 | Final Findings & Presentation | Report / dashboard / model artifact for American Airlines | Teams + PM | `team-##/<name>` → `team-##/main` → `main` | Weeks 7–8 |
 
-> **Deliverables 2–4 are team deliverables.** Members work on `team-##/<your-name>`, merge up into their team's trunk `team-##/main`, and only `team-##/main` opens a PR into `main` — reviewed and merged by a PM. See [Branch conventions](#branch-conventions) below.
+> **Deliverables 2–4 are team deliverables.** Each member works on their own branch, merges up into their team's single **trunk** branch, and only that trunk opens a PR into `main` — reviewed and merged by a PM. The suggested names are `team-##/<your-name>` and `team-##/main`, but **the structure is what matters, not the names.** See [Branch conventions](#branch-conventions) below.
 
 ---
 
@@ -51,11 +51,12 @@ Before we write production-quality ML code, everyone needs to be comfortable wit
    ```
    > `deliverable1/data/` is git-ignored — **do not commit the CSV file.**
 
-5. **Open and work through** `deliverable1/flight_price_prediction.ipynb`. Fill in every `# TODO` cell and answer the reflection questions at the end.
+5. **Open and work through** the starter notebook in `deliverable1/`. Fill in every `# TODO` cell and answer the reflection questions at the end.
+   > **Note (updated):** the shared `flight_price_prediction.ipynb` template has since been replaced on `main` by per-member copies (e.g. `flight_price_prediction_Adi_Nounou.ipynb`). Work in your own named copy; that is what the merged Deliverable 1 PRs settled on.
 
 6. **Commit your work** with a clear message:
    ```sh
-   git add deliverable1/flight_price_prediction.ipynb
+   git add deliverable1/<your-notebook>.ipynb
    git commit -m "deliverable1: complete EDA and XGBoost starter notebook"
    ```
 
@@ -201,14 +202,16 @@ The branch model changed. Deliverable 1 was solo PRs into `main`, which does not
 1. **One member per team** creates the team trunk, once:
    ```sh
    git switch main && git pull origin main
-   git switch -c team-07/main          # your team's number, zero-padded
-   git push -u origin team-07/main
+   git switch -c team-06/main          # your team's number, zero-padded
+   git push -u origin team-06/main
    ```
+   If that name is refused with `cannot lock ref`, a plain `team-##` branch already occupies
+   the name — use `team-##-main` instead and tell your team. Nothing needs deleting.
 2. **Every member** branches off the trunk — not off `main`:
    ```sh
    git fetch origin
-   git switch -c team-07/alex-chen origin/team-07/main
-   git push -u origin team-07/alex-chen
+   git switch -c team-06/alex-chen origin/team-06/main
+   git push -u origin team-06/alex-chen
    ```
 3. **Copy the dataset** from Deliverable 1 to `deliverable2/data/Clean_Dataset.csv`. That path is git-ignored — **do not commit the CSV**.
 4. **Work through the notebook**, completing every `# TODO` cell and every markdown answer prompt. Commit per section, not in one lump.
@@ -255,11 +258,24 @@ Take the model each team chose in Deliverable 2 and make it better, deliberately
 | 1 | `deliverable1/<name>` | — | the member's own PR into `main` |
 | 2–4 | `team-##/<name>` | `team-##/main` | one PR from `team-##/main`, merged by a PM |
 
+**The names above are a suggestion; the structure is the requirement.** What every team must
+have is **one trunk branch** that collects the team's work and **one branch per member** that
+merges into it. What those branches are called is up to the team — several teams already use
+different shapes, and that is fine.
+
 Three things to keep straight:
 
-- **`##` is the team number, zero-padded.** Team 7 is `team-07`, team 12 is `team-12`. Consistent padding keeps the branch list sorted and greppable.
-- **`team-##/main` is a team's trunk, not the repo's `main`.** Only it opens a PR into the real `main`, and only a PM merges that PR. Members never commit to `team-##/main` directly; work arrives there by merge.
-- **Every branch name is a flat leaf.** Git stores refs as files, so no name may be a *prefix* of another in the same namespace: once `team-07/main` exists, `team-07/main/fix` is impossible. Use `team-07/alex-chen-v2`, never a nested path. This is the same rule as in [`CONTRIBUTING.md`](CONTRIBUTING.md#branch-naming) — it bites people on `team-##/main` because `main` is such a natural thing to want to extend.
+- **A team's trunk is not the repo's `main`.** Only the trunk opens a PR into the real `main`,
+  and only a PM merges that PR. Members never commit to the trunk directly; work arrives there
+  by merge.
+- **A branch name cannot be a prefix of another.** Git stores refs as file paths, so if a plain
+  branch `team-07` exists, then `team-07/main` is **impossible** — git refuses with
+  `cannot lock ref ... 'team-07' exists`. Teams in that position should simply use a free name
+  such as `team-07-main`. **No existing branch needs to be deleted to make room**, and no work
+  is at risk either way. Same rule inside a namespace: `team-06/alex-chen-v2` is fine,
+  `team-06/alex-chen/fix` is not. See [`CONTRIBUTING.md`](CONTRIBUTING.md#branch-naming).
+- **Zero-padding is a nicety, not a rule.** `team-06` sorts better than `team-6` in a long
+  branch list, but a team already using the unpadded form should not churn its branches over it.
 
 ---
 
@@ -269,4 +285,4 @@ Three things to keep straight:
 - **Dates are estimates.** When reality diverges, update the issue and, if the shift is material, this file.
 - **"Done" is defined per issue** via the acceptance criteria above — not by a date passing.
 - **Reprioritize openly.** If a deliverable changes, a PM notes why in the issue so the decision is auditable.
-- **Teams are stable across Deliverables 2–4.** A team keeps its number and its `team-##/main` trunk for the rest of the term, so the branch tree stays readable and reviewers keep their context.
+- **Teams are stable across Deliverables 2–4.** A team keeps its number and its trunk branch for the rest of the term, so the branch tree stays readable and reviewers keep their context.
