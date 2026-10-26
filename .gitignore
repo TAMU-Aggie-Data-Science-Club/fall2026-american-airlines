@@ -5,7 +5,8 @@
 # is tracked and is intentionally NOT inside data/.
 data/*
 !data/.gitkeep
-
+/workspaces/fall2026-american-airlines/deliverable1/data/Clean_Dataset.csv
+deliverable1/data/*.csv
 # Deliverable sub-data folders follow the same rule.
 deliverable1/data/*
 !deliverable1/data/.gitkeep
