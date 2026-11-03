@@ -11,8 +11,6 @@ deliverable1/data/*
 !deliverable1/data/.gitkeep
 deliverable2/data/*
 !deliverable2/data/.gitkeep
-deliverable3/data/*
-!deliverable3/data/.gitkeep
 
 # --- Agent / private working notes ----------------------------------------
 # Scratch planning files (see AGENTS.md) — never part of a PR.

@@ -249,7 +249,6 @@ The branch model changed. Deliverable 1 was solo PRs into `main`, which does not
 > **Due:** Monday, November 9, 2026
 > **Owner:** every member, working inside their assigned team
 > **Branch convention:** same tree as Deliverable 2 — `team-##/<your-name>` → PR into `team-##/main` → PM merges into `main`
-> **Full brief:** [`deliverable3/deliverable.md`](deliverable3/deliverable.md)
 
 ### What this is
 
@@ -268,7 +267,7 @@ should have a reason too.
 notebook; this deliverable does not, by design — the real dataset's quirks (whatever they turn
 out to be) are the point, and a template would paper over exactly the EDA work this deliverable
 exists to teach. Teams build their EDA from a blank notebook under their own
-`team-##-modeling/` folder (see the full brief).
+`team-##-modeling/` folder (see below).
 
 ### Why it is shaped this way
 
@@ -278,15 +277,108 @@ own leakage traps, and has a client (American Airlines) who will actually read t
 Doing ingestion + EDA as its own deliverable, instead of folding it into tuning, means teams stop
 and look at the real data honestly before any model is fit to it.
 
+### 1. Get the data
+
+The American Airlines dataset is under **NDA**. Treat it accordingly:
+
+- It lives in a **Google Drive folder** shared with the project. It is **not linked from this
+  repo** on purpose — ask your **team lead** for the link, or check the project's **Discord**
+  (the link/announcement was posted there). If neither gets you access, ask a PM before doing
+  anything else.
+- Download it locally into the **git-ignored** [`data/`](data/) folder — see [`DATA.md`](DATA.md)
+  for the full entry. **Never** commit the raw file, a cleaned copy, a sample of rows, or a
+  screenshot of it into this repo, an issue, a PR, or a chat message outside the team.
+- Do not re-upload it anywhere else (your own Drive, a personal repo, a DM to someone outside
+  the team). If you're unsure whether sharing something crosses that line, ask a PM before doing
+  it, not after.
+- `git status` should never show the data file as untracked-and-about-to-be-added or staged.
+
+### 2. Set up your team's modeling folder
+
+Each team works inside its own `team-##-modeling/` folder, committed to the **team's branch
+tree** (your member branches → your team's trunk), not to a new top-level folder shared across
+teams. This is where all of your Deliverable 3 work lives, so every team's models and findings
+merge cleanly into `main` side by side.
+
+```
+team-##-modeling/
+├── notebooks/        # or scripts/ — the Jupyter notebooks you're building to explore and train
+├── models/           # saved model files and your prediction outputs
+└── results/          # or visuals/ — plots, figures, summary tables
+```
+
+**Organization inside the folder is your team's call** — the structure above is a suggestion,
+not a requirement. What matters is that your team agrees on a layout before everyone starts
+committing. Decide it in your first team meeting for this deliverable.
+
+```sh
+git switch team-06/<your-name>          # your existing member branch, or cut a new one
+mkdir -p team-06-modeling/notebooks team-06-modeling/models team-06-modeling/results
+```
+
+Work through the usual flow: commit on your member branch, open a PR into `team-##/main`, get it
+reviewed by a teammate, merge up. Once everyone's EDA has landed in `team-##/main`, the team
+opens one PR from `team-##/main` → `main`, tagging a PM — same as Deliverable 2.
+
+### 3. Do the EDA
+
+There's no notebook handed to you this time, but "basic EDA" on a new dataset should at minimum
+cover:
+
+- **Shape and types.** Rows, columns, what each column actually represents (ask a PM/team lead
+  if a column name is ambiguous — don't guess at a real dataset's schema).
+- **Missingness.** Which columns have gaps, how much, and whether the gap is random or tied to
+  something else in the data (e.g. missing only for a particular route or date range).
+- **Distributions and outliers.** For the target and for the features you expect to matter —
+  same instinct as Deliverable 2's price-by-cabin split, applied to whatever this dataset's
+  target turns out to be.
+- **Leakage risk, specific to this dataset.** Deliverable 2 taught you what leakage looks like
+  on the Kaggle data; this dataset will have its own version of that problem, likely not the
+  same columns. Look for anything that could only be known *after* the outcome you're trying to
+  predict.
+- **Relationships that bear on model choice.** Linear vs. non-linear relationships, categorical
+  cardinality, whether there's a genuine time axis this time (unlike the Kaggle dataset) — each
+  of these should point toward or away from a specific model family.
+
+### 4. Land on a feature set
+
+Finish the week with:
+
+- A **named model or model family** (e.g. "gradient-boosted trees" or "Ridge regression"), with
+  the EDA observations that led there — not "we'll decide after we see the scores."
+- A **feature set** — the actual transformed columns, produced by code in your notebook/scripts,
+  not just a bullet list — that you're confident is appropriate input for that model/family.
+- A short **written rationale** per feature you engineered or dropped. This is the part that
+  makes the feature set "ready-to-go" instead of just "a dataframe we made."
+
+This feature set is what Deliverable 4 (tuning) builds on, so it needs to actually run, not just
+exist in someone's head.
+
+### Acceptance criteria — per member
+
+- [ ] Your branch is `team-##/<your-name>`; your PR targets `team-##/main`, not `main`
+- [ ] Your notebook/scripts run top-to-bottom with no errors
+- [ ] No data file (raw, cleaned, or sampled) is committed anywhere in your PR
+- [ ] Your EDA addresses shape/types, missingness, distributions/outliers, and leakage risk for
+      the real dataset — not a repeat of the Kaggle findings from Deliverable 2
+- [ ] You can state, in writing, which model/model family your EDA points to and why
+- [ ] Outputs are cleared before committing (Kernel → Restart & Clear Output)
+- [ ] One substantive review left on your assigned teammate's PR
+
 ### Acceptance criteria — per team
 
-- [ ] Team branch has a `team-##-modeling/` folder (see [`deliverable3/deliverable.md`](deliverable3/deliverable.md) for suggested layout) with the team's real EDA work in it
+- [ ] `team-##-modeling/` exists on the team's trunk with every member's EDA merged in
 - [ ] The AA dataset is in a git-ignored `data/` location only — `git status` / `git log` show no committed data files
-- [ ] EDA covers distributions, missingness, outliers, and any leakage risks specific to the real dataset (not a repeat of Deliverable 2's Kaggle findings)
-- [ ] A specific model or model family is named, with the EDA reasoning that led there
-- [ ] A finished feature set exists (as a notebook/script output, not just prose) that the team is confident feeds that model/family
+- [ ] The team has agreed on and documented one feature set, with the per-feature rationale,
+      aimed at one named model or model family
 - [ ] `DATA.md` row for the AA dataset is accurate for how the team actually accessed it
-- [ ] One PR from `team-##/main` → `main`, tagging a PM
+- [ ] One PR open from `team-##/main` → `main`, tagging a PM
+
+> **A reminder on the NDA.** This is the first deliverable working with data that is not yours
+> to post, publish, or discuss outside the team and the club's PMs. If you're ever unsure
+> whether something is safe to share — a chart with real numbers on it, a snippet of raw rows
+> pasted into a Discord message to ask for help, a screenshot in a PR description — **don't**,
+> and ask a PM first. It's much cheaper to ask than to un-share something.
 
 ---
 
