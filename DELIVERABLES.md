@@ -5,9 +5,10 @@
 | # | Deliverable | Description | Owner | Branches | Target |
 |---|-------------|-------------|-------|----------|--------|
 | 1 | GitHub Fundamentals + ML Starter | Git workflow practice + intro XGBoost notebook on flight price prediction | All members, individually | `deliverable1/<name>` → `main` | ✅ Week 1 (Oct 6–12, 2026) |
-| 2 | EDA, Data Leakage & Choosing the Right Model | Deeper EDA tied to modelling decisions; data leakage and what it cost; Lasso vs Ridge; loss functions (MSE / MAE / Huber / quantile); XGBoost vs Random Forest vs ARIMA. *Absorbs the former "EDA & Data Cleaning" and "Model Development & Evaluation" milestones — members cannot evaluate a model honestly until they can spot leakage, so the two were being taught in the wrong order.* | All members, in teams | `team-##/<name>` → `team-##/main` → `main` | Week 3–4 (due Nov 2, 2026) |
-| 3 | Tuning & Error Analysis | Hyperparameter search over the chosen model, learning curves, regularisation, segment-level error analysis | Teams | `team-##/<name>` → `team-##/main` → `main` | Weeks 5–6 |
-| 4 | Final Findings & Presentation | Report / dashboard / model artifact for American Airlines | Teams + PM | `team-##/<name>` → `team-##/main` → `main` | Weeks 7–8 |
+| 2 | EDA, Data Leakage & Choosing the Right Model | Deeper EDA tied to modelling decisions; data leakage and what it cost; Lasso vs Ridge; loss functions (MSE / MAE / Huber / quantile); XGBoost vs Random Forest vs ARIMA. *Absorbs the former "EDA & Data Cleaning" and "Model Development & Evaluation" milestones — members cannot evaluate a model honestly until they can spot leakage, so the two were being taught in the wrong order.* | All members, in teams | `team-##/<name>` → `team-##/main` → `main` | ✅ Week 3–4 (due Nov 2, 2026) |
+| 3 | Real Data: Ingestion & EDA | Move off the practice Kaggle dataset onto the real, NDA-covered American Airlines dataset. Pull it from Google Drive (link via Discord/team lead), set up a `team-##-modeling/` folder on the team branch, and run EDA that ends in a ready-to-go feature set for a specific model or model subset — no mock notebook. *New milestone — pushes the former Deliverable 3 ("Tuning & Error Analysis") to 4 and "Final Findings" to 5, since teams need real features before tuning a real model.* | Teams | `team-##/<name>` → `team-##/main` → `main` | Week 5 (due Nov 9, 2026) |
+| 4 | Tuning & Error Analysis | Hyperparameter search over the chosen model, learning curves, regularisation, segment-level error analysis | Teams | `team-##/<name>` → `team-##/main` → `main` | Weeks 6–7 |
+| 5 | Final Findings & Presentation | Report / dashboard / model artifact for American Airlines | Teams + PM | `team-##/<name>` → `team-##/main` → `main` | Week 8 |
 
 > **Deliverables 2–4 are team deliverables.** Each member works on their own branch, merges up into their team's single **trunk** branch, and only that trunk opens a PR into `main` — reviewed and merged by a PM. The suggested names are `team-##/<your-name>` and `team-##/main`, but **the structure is what matters, not the names.** See [Branch conventions](#branch-conventions) below.
 
@@ -243,11 +244,72 @@ The branch model changed. Deliverable 1 was solo PRs into `main`, which does not
 
 ---
 
-## Deliverable 3 — Tuning & Error Analysis *(preview — details at the start of Week 5)*
+## Deliverable 3 — Real Data: Ingestion & EDA
 
-> **Target:** Weeks 5–6
+> **Due:** Monday, November 9, 2026
+> **Owner:** every member, working inside their assigned team
+> **Branch convention:** same tree as Deliverable 2 — `team-##/<your-name>` → PR into `team-##/main` → PM merges into `main`
+> **Full brief:** [`deliverable3/deliverable.md`](deliverable3/deliverable.md)
 
-Take the model each team chose in Deliverable 2 and make it better, deliberately: hyperparameter search (`RandomizedSearchCV` over the pipeline, so the search itself stays leakage-safe), learning curves to tell a data problem from a model problem, and segment-level error analysis — metrics broken down by cabin, airline, route and booking window, so the team can say *where* the model fails rather than just how much. Nothing here works without Deliverable 2's pipeline and the model choice behind it, which is why they are sequenced this way.
+### What this is
+
+Deliverables 1 and 2 ran on the public Kaggle flight-price dataset — useful for learning the
+workflow, but it was never the project's real data. This deliverable is the handoff: teams
+pull down the **actual American Airlines dataset**, which is covered by an NDA, get it set up
+correctly (git-ignored, never shared outside the team), and run EDA on it for real.
+
+The deliverable is **not** "produce a notebook that runs." It is: **by the end of the week, have
+a complete, ready-to-go set of features that the team knows works for a specific model or model
+family** — chosen using the same reasoning Deliverable 2 taught (data shape, loss, stakeholder
+need, cost, and only then score). Every feature kept should have a reason; every feature dropped
+should have a reason too.
+
+**No mock or template notebook for this one.** Deliverable 1 and 2 shipped with a shared starter
+notebook; this deliverable does not, by design — the real dataset's quirks (whatever they turn
+out to be) are the point, and a template would paper over exactly the EDA work this deliverable
+exists to teach. Teams build their EDA from a blank notebook under their own
+`team-##-modeling/` folder (see the full brief).
+
+### Why it is shaped this way
+
+Deliverable 2 taught leakage and model selection on a clean, well-understood public dataset
+specifically so teams would hit those lessons before the real data — which is messier, has its
+own leakage traps, and has a client (American Airlines) who will actually read the conclusions.
+Doing ingestion + EDA as its own deliverable, instead of folding it into tuning, means teams stop
+and look at the real data honestly before any model is fit to it.
+
+### Acceptance criteria — per team
+
+- [ ] Team branch has a `team-##-modeling/` folder (see [`deliverable3/deliverable.md`](deliverable3/deliverable.md) for suggested layout) with the team's real EDA work in it
+- [ ] The AA dataset is in a git-ignored `data/` location only — `git status` / `git log` show no committed data files
+- [ ] EDA covers distributions, missingness, outliers, and any leakage risks specific to the real dataset (not a repeat of Deliverable 2's Kaggle findings)
+- [ ] A specific model or model family is named, with the EDA reasoning that led there
+- [ ] A finished feature set exists (as a notebook/script output, not just prose) that the team is confident feeds that model/family
+- [ ] `DATA.md` row for the AA dataset is accurate for how the team actually accessed it
+- [ ] One PR from `team-##/main` → `main`, tagging a PM
+
+---
+
+## Deliverable 4 — Tuning & Error Analysis *(preview — details at the start of Week 6)*
+
+> **Target:** Weeks 6–7
+
+Take the model each team chose and the feature set each team built in Deliverable 3, on the
+real American Airlines data, and make it better, deliberately: hyperparameter search
+(`RandomizedSearchCV` over the pipeline, so the search itself stays leakage-safe), learning
+curves to tell a data problem from a model problem, and segment-level error analysis — metrics
+broken down by whatever segments the real data supports, so the team can say *where* the model
+fails rather than just how much. Nothing here works without Deliverable 3's feature set and the
+model choice behind it, which is why they are sequenced this way.
+
+---
+
+## Deliverable 5 — Final Findings & Presentation *(preview)*
+
+> **Target:** Week 8
+
+Report, dashboard, or model artifact delivered to American Airlines, built on the tuned model
+from Deliverable 4.
 
 ---
 
@@ -256,7 +318,7 @@ Take the model each team chose in Deliverable 2 and make it better, deliberately
 | Deliverable | Member branch | Merges into | Then into `main` via |
 |---|---|---|---|
 | 1 | `deliverable1/<name>` | — | the member's own PR into `main` |
-| 2–4 | `team-##/<name>` | `team-##/main` | one PR from `team-##/main`, merged by a PM |
+| 2–5 | `team-##/<name>` | `team-##/main` | one PR from `team-##/main`, merged by a PM |
 
 **The names above are a suggestion; the structure is the requirement.** What every team must
 have is **one trunk branch** that collects the team's work and **one branch per member** that
@@ -285,4 +347,4 @@ Three things to keep straight:
 - **Dates are estimates.** When reality diverges, update the issue and, if the shift is material, this file.
 - **"Done" is defined per issue** via the acceptance criteria above — not by a date passing.
 - **Reprioritize openly.** If a deliverable changes, a PM notes why in the issue so the decision is auditable.
-- **Teams are stable across Deliverables 2–4.** A team keeps its number and its trunk branch for the rest of the term, so the branch tree stays readable and reviewers keep their context.
+- **Teams are stable across Deliverables 2–5.** A team keeps its number and its trunk branch for the rest of the term, so the branch tree stays readable and reviewers keep their context.
