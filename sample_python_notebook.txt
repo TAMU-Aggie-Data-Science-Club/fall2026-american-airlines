@@ -1,0 +1,46 @@
+# Install Libraries. Only do these two steps the first time!
+# 1. Install the Snowflake-Python connector
+pip install snowflake-connector-python
+
+# 2. Install the Pandas-compatible version of the Snowflake connector
+pip install "snowflake-connector-python[pandas]"
+
+# Main Code
+# Import required modules/libraries
+import snowflake.connector
+import pandas as pd
+
+# Set connection
+try:
+    conn = snowflake.connector.connect(
+        user='*******',
+        password='******',
+        account='AA-ITOR_UNIVERSITY',
+        warehouse='UNIVERSITY_READER',
+        database='LOCAL_DATABASE',
+        schema='ORAAUE',
+        role='******'
+    )
+except Exception as e:
+    print("Error in connection, Here is the error message.... \n" + str(e))
+	
+#Extract and load data	
+try:
+    # Create cursor object
+    cur = conn.cursor()
+    
+    # Prepare the SQL statement
+    sqlquery = 'select top 1000 * from local_database.oraaue.DB_NAME'
+    
+    # Run the SQL statement and capture query output in a Pandas dataframe
+    cur.execute(sqlquery)
+    df = cur.fetch_pandas_all()
+    
+    # Load pandas dataframe into a file, make sure you escape the backslash if using windows in the filepath like this C:\\mylocation\\myfolder\\filename.csv
+    filename = 'C:\\mylocation\\myfolder\\filename.csv'
+    df.to_csv(filename, sep='|',encoding='utf-8')
+    
+except Exception as e:
+    print("Error: the error message is..... \n" + str(e))
+finally:
+    conn.close()
