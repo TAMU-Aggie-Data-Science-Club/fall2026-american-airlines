@@ -1,0 +1,9 @@
+# AA data is under NDA. Nothing data-shaped from this folder ever gets committed,
+# even if a notebook saves a table or sample here by accident.
+*.csv
+*.csv.gz
+*.parquet
+*.xlsx
+*.xls
+*.feather
+data/
