@@ -1,0 +1,21 @@
+# NDA safety net: never commit data, extracts, or anything derived row-by-row from the AA dataset.
+*.csv
+*.tsv
+*.parquet
+*.pq
+*.feather
+*.xlsx
+*.xls
+*.json
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.zip
+*.gz
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Keep the (otherwise empty) folders in git
+!.gitkeep
