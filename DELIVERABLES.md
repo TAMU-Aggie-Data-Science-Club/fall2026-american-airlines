@@ -402,8 +402,25 @@ approaches. No team is required to run every model; choose candidates that fit t
 target, time structure, and project question, and explain why each tested model was included or
 excluded.
 
-### Acceptance criteria
+### Acceptance criteria — per member
 
+- [ ] Your assigned candidate model is implemented and runnable from the Deliverable 3
+      real-data feature set in `team-##-modeling/`
+- [ ] Your candidate uses the agreed validation split or cross-validation and the shared
+      metrics, with reproducible outputs
+- [ ] Your PR records the model's trade-offs, limitations, and reason for inclusion or
+      exclusion in the comparison work
+- [ ] Your branch is `team-##/<your-name>`; your PR targets `team-##/main`, not `main`
+- [ ] One substantive review left on an assigned teammate's PR
+
+### Acceptance criteria — per team
+
+- [ ] `team-##-modeling/results/model-comparison.md` contains the side-by-side candidate
+      results, validation method, shared metrics, and trade-off discussion
+- [ ] `team-##-modeling/results/baseline-decision.md` documents the selected baseline model,
+      the reasons for the choice, and the model to carry forward into Deliverable 5
+- [ ] Every member's candidate-model work and comparison contribution is merged into the
+      team's trunk
 - [ ] Candidate models use the Deliverable 3 real-data feature set in `team-##-modeling/`
 - [ ] Models are compared with comparable validation and metrics
 - [ ] The team documents model trade-offs and the reasons for its choice
