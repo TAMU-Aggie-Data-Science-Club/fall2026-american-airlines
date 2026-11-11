@@ -12,7 +12,7 @@ Deliverable 3 feature set for gradient-boosted trees. The target is `OD_PAX`: pa
 | `anish.ipynb` | Missingness, including the non-US blanks in state and country |
 | `distributions.ipynb` | Target skew, the month pattern, and why this panel is not one ARIMA series |
 | `leakage.ipynb` | What is known at the cutoff, and what is dropped |
-| `deekshitha.ipynb` | Passenger-volume histograms and a month trend on a 50,000-row sample |
+| `deekshitha.ipynb` | Passenger-volume histograms, the month pattern, and why same-month revenue is not a feature |
 | `pri-biswal.ipynb` | The feature set those notes add up to |
 
 ## The model
@@ -23,7 +23,7 @@ Eleven columns of `X` are pandas categories. Eleven are numbers. Deliverable 4 c
 
 ## State code
 
-`ORG_STATE_PROVNC_CD` and `DES_STATE_PROVNC_CD` stay. Blanks are filled with `MISSING`. Those blanks are non-US airports, so filling in a state would invent one. `lukas.ipynb` drops the column because about half the airport lookup is blank. This feature set keeps it, the same call as `anish.ipynb`.
+`ORG_STATE_PROVNC_CD` and `DES_STATE_PROVNC_CD` stay. Blanks are filled with `MISSING`. Those blanks are non-US airports, so filling in a state would invent one. About half the airport lookup is blank. `anish.ipynb` and `lukas.ipynb` both keep the column for that reason.
 
 ## Dropped
 
