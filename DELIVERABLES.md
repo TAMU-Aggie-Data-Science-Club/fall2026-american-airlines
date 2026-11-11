@@ -8,7 +8,7 @@
 | 2 | EDA, Data Leakage & Choosing the Right Model | Deeper EDA tied to modelling decisions; data leakage and what it cost; Lasso vs Ridge; loss functions (MSE / MAE / Huber / quantile); XGBoost vs Random Forest vs ARIMA. *Absorbs the former "EDA & Data Cleaning" and "Model Development & Evaluation" milestones — members cannot evaluate a model honestly until they can spot leakage, so the two were being taught in the wrong order.* | All members, in teams | `team-##/<name>` → `team-##/main` → `main` | ✅ Week 3–4 (due Nov 2, 2026) |
 | 3 | Real Data: Ingestion & EDA | Move off the practice Kaggle dataset onto the real, NDA-covered American Airlines dataset. Pull it from Google Drive (link via Discord/team lead), set up a `team-##-modeling/` folder on the team branch, and run EDA that ends in a ready-to-go feature set for a specific model or model subset — no mock notebook. *New milestone — pushes the former Deliverable 3 ("Tuning & Error Analysis") to 5 and "Final Findings" to 6, since teams need real features before tuning a real model.* | Teams | `team-##/<name>` → `team-##/main` → `main` | Week 5 (due Nov 9, 2026) |
 | 4 | Model Selection & Baseline Finalization | Test multiple justified candidate models, compare them with consistent validation and metrics, discuss trade-offs, and document the model to carry forward | Teams | `team-##/<your-name>` → `team-##/main` → `main` | Week 6 |
-| 5 | Tuning & Error Analysis | Hyperparameter search over the selected model, learning curves, regularisation, segment-level error analysis | Teams | `team-##/<your-name>` → `team-##/main` → `main` | Weeks 7–8 |
+| 5 | Model Finalization, Forecast Testing & Business Interpretation | Finalize training and testing of the selected model for a two-year-ahead demand forecast; report model statistics, visual diagnostics, testing results, and business implications | Teams | `team-##/<your-name>` → `team-##/main` → `main` | Weeks 7–8 |
 | 6 | Final Findings & Presentation | Report / dashboard / model artifact for American Airlines | Teams + PM | `team-##/<your-name>` → `team-##/main` → `main` | Week 8 |
 
 > **Deliverables 2–6 are team deliverables.** Each member works on their own branch, merges up into their team's single **trunk** branch, and only that trunk opens a PR into `main` — reviewed and merged by a PM. The suggested names are `team-##/<your-name>` and `team-##/main`, but **the structure is what matters, not the names.** See [Branch conventions](#branch-conventions) below.
@@ -429,17 +429,74 @@ excluded.
 
 ---
 
-## Deliverable 5 — Tuning & Error Analysis *(preview — details at the start of Week 7)*
+## Deliverable 5 — Model Finalization, Forecast Testing & Business Interpretation
 
-> **Target:** Weeks 6–7
+> **Target:** Weeks 7–8
 
-Take the model selected in Deliverable 4 and the feature set each team built in Deliverable 3,
-on the real American Airlines data, and make it better, deliberately: hyperparameter search
-(`RandomizedSearchCV` over the pipeline, so the search itself stays leakage-safe), learning
-curves to tell a data problem from a model problem, and segment-level error analysis — metrics
-broken down by whatever segments the real data supports, so the team can say *where* the model
-fails rather than just how much. Nothing here works without Deliverable 3's feature set and the
-Deliverable 4 model choice behind it, which is why they are sequenced this way.
+Take the model selected in Deliverable 4 and the feature set each team built in Deliverable 3
+on the real American Airlines data. This deliverable moves the team from model selection to a
+tested, explainable forecasting result: finalize the training process, evaluate the model on
+held-out data, and explain what the results mean for the airline's planning decisions.
+
+The forecast horizon is the central requirement. The goal is **not** to predict only the next
+demand value or the next observation. The team must define and evaluate a forecast of demand
+**two years into the future as a whole**. The evaluation design should make that horizon
+explicit, avoid using information that would not be available at forecast time, and explain
+whether the available data can support that long-range claim. If the data cannot justify a
+full two-year forecast, document the limitation, the assumptions required, and the most honest
+forecast the model can provide instead.
+
+### What this includes
+
+- **Finalize training:** complete the selected model's preprocessing, feature pipeline,
+  hyperparameters, regularisation, and reproducible training procedure. Keep the train/test
+  boundary leakage-safe and explain how the two-year horizon is represented.
+- **Test the forecast:** report held-out or rolling-origin testing results for the two-year
+  demand forecast, using metrics appropriate to the target and business question. Include
+  uncertainty or prediction intervals where the model supports them, and compare against a
+  simple baseline so the result is not presented without context.
+- **Describe what the model does:** provide model statistics and diagnostics that reveal how it
+  behaves, such as error metrics, residual/error distributions, calibration or interval
+  coverage, feature importance or coefficients, learning curves, and segment-level errors
+  where the data supports them.
+- **Show the forecast visually:** include plots of observed versus predicted demand, the
+  two-year forecast horizon, uncertainty bands when available, residuals or errors over time,
+  and any segment or scenario views needed to interpret the result.
+- **Connect to the business case:** explain how American Airlines could use the forecast for
+  capacity, scheduling, staffing, pricing, or other relevant planning decisions. State what
+  the model supports, what it does not support, the risks of acting on a two-year forecast,
+  and what additional data or monitoring would be needed before deployment.
+
+### Acceptance criteria — per member
+
+- [ ] The finalized model is trained reproducibly from the Deliverable 3 feature set and
+      Deliverable 4 baseline decision in `team-##-modeling/`
+- [ ] The train/test or rolling-origin design evaluates the requested two-year-ahead demand
+      forecast rather than only next-step prediction, with leakage controls documented
+- [ ] Testing results include agreed metrics, a baseline comparison, and limitations or
+      uncertainty for the two-year horizon
+- [ ] The member contributes model statistics, diagnostics, or forecast visuals and explains
+      what they reveal about model behavior
+- [ ] The member connects the model result to a specific American Airlines business use case
+      and records assumptions or risks
+- [ ] The branch is `team-##/<your-name>`; the PR targets `team-##/main`, not `main`
+- [ ] One substantive review is left on an assigned teammate's PR
+
+### Acceptance criteria — per team
+
+- [ ] `team-##-modeling/results/final-model-report.md` documents the finalized training
+      procedure, forecast horizon, testing design, statistics, and business interpretation
+- [ ] `team-##-modeling/results/forecast-evaluation.md` contains held-out or rolling-origin
+      results for the two-year-ahead demand forecast, baseline comparisons, and limitations
+- [ ] `team-##-modeling/visuals/` contains the observed-versus-predicted plot, two-year forecast
+      visualization, and diagnostic or segment-level visuals
+- [ ] Every member's final-model work is merged into the team's trunk
+- [ ] The report distinguishes two-year demand forecasting from next-value prediction and
+      states whether the data supports the claimed horizon
+- [ ] The team explains how the forecast informs the American Airlines business case, including
+      assumptions, risks, and recommended monitoring or follow-up data
+- [ ] Work follows `team-##/<your-name>` → PR into `team-##/main` → PM merges `team-##/main`
+      into `main`
 
 ---
 
@@ -447,8 +504,8 @@ Deliverable 4 model choice behind it, which is why they are sequenced this way.
 
 > **Target:** Week 8
 
-Report, dashboard, or model artifact delivered to American Airlines, built on the tuned model
-from Deliverable 5.
+Report, dashboard, or model artifact delivered to American Airlines, built on the finalized
+and tested two-year demand forecast from Deliverable 5.
 
 ---
 
