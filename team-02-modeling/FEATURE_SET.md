@@ -8,7 +8,7 @@
 | Target and loss | Aidan Chance |
 | Leakage decisions | Sahith Yamani |
 | Missingness handling | Chau Ha |
-| Validation scheme and date features | Kimberly Maxwell |
+| Validation scheme and date features | Akshith Reddy Sheri |
 | Encoding, relationships, feature-set code | Aditi Walvekar |
 | Model family, feature register, data access | Akshith Reddy Sheri |
 
@@ -21,7 +21,7 @@
   1. 
   2. 
   3. 
-- **Validation scheme:** *(time-ordered split on `<date column>` if there is a real time axis, otherwise K-fold — and why)* — **Kimberly**
+- **Validation scheme:** *(time-ordered split on `<date column>` if there is a real time axis, otherwise K-fold — and why)* — **Akshith**
 
 ## Leakage decisions — Sahith
 
@@ -35,7 +35,7 @@
 |---|---|---|---|
 | | | | |
 
-## Date features — Kimberly
+## Date features — Akshith
 
 | Feature | Built from | Why |
 |---|---|---|

@@ -30,15 +30,16 @@ with **one feature set built by code**, aimed at **one named model family**, wit
 
 | Member | Branch | Deep-dive area | Hand-off to the lead |
 |---|---|---|---|
-| **Akshith Reddy Sheri** (lead) | `team-02/akshithreddy-sheri` | Team setup, reviews and merges, `FEATURE_SET.md`, `DATA.md`, final PR | Assembles everyone's hand-offs |
+| **Akshith Reddy Sheri** (lead) | `team-02/akshithreddy-sheri` | **Time axis & date features** — coverage, missing route-months, trend and seasonality, validation scheme, date features. Plus team setup, merges, `FEATURE_SET.md`, `DATA.md`, final PR | Validation scheme + date features; assembles everyone's hand-offs |
 | **Sahith Yamani** | `team-02/sahith-yamani` | **Leakage** — decide every suspect column: leak, ID, or keep | Leak / ID column list, with a reason each |
 | **Aidan Chance** | `team-02-aidan-chance` | **Target & outliers** — what the target is, its shape, outlier policy, which loss | Target definition, outlier handling, recommended loss |
 | **Chau Ha** | `team-02/chau-ha-d3` *(new branch)* | **Missingness** — random, or tied to a route/date/category? How to handle each column | Per-column handling plan |
-| **Kimberly Maxwell** | `team-02/kimberly-maxwell` | **Time axis & date features** — is there a real time axis? validation scheme, date features | Validation scheme + date features to build |
 | **Aditi Walvekar** | `team-02/aditi_walvekar` | **Categoricals & relationships** — cardinality, encoding, linear vs non-linear, interactions. **Also writes the team's final feature-set code** (`notebooks/feature_set.ipynb`) from everyone's hand-offs | Encoding plan + the feature-set notebook |
 
 **Review ring** (each person leaves one substantive review on this person's PR):
-Akshith → Sahith → Aidan → Chau → Kimberly → Aditi → Akshith
+Akshith → Sahith → Aidan → Chau → Aditi → Akshith
+
+*(Kimberly Maxwell is no longer on the project; her time-axis area moved to Akshith.)*
 
 ---
 
@@ -76,7 +77,7 @@ cd ~/fall2026-american-airlines        # wherever your clone is
 git fetch origin --prune
 git switch -c team-02/your-name origin/team-02/main
 ```
-- Already have a `team-02/your-name` branch whose Deliverable 2 work is already merged (Aidan, Aditi, Kimberly)?
+- Already have a `team-02/your-name` branch whose Deliverable 2 work is already merged (Aidan, Aditi)?
   Reuse it instead: `git switch <your branch>` then `git pull origin team-02/main`
 - **Chau:** make a fresh branch, because your old one has unmerged D2 changes:
   `git switch -c team-02/chau-ha-d3 origin/team-02/main`
