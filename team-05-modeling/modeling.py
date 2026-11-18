@@ -1,12 +1,3 @@
-"""
-Production-Ready 2-Year Passenger Demand Forecasting Pipeline (`modeling.py`)
-Target: `OD_PAX` (Origin-Destination Passenger Demand per Departure Month)
-Features:
-  - Full 2019–2024 historical training + 24-month recursive out-of-sample holdout (Aug 2024 – Jul 2026)
-  - Rolling-Origin Expanding-Window Cross-Validation (3 folds across multiple economic cycles)
-  - Real FAA Hub-Tier Segment Evaluation (Large Hubs vs. Medium/Small Hubs vs. International)
-  - Seasonal Naive Baseline comparison + 80%/95% Prediction Intervals + Residual Diagnostics
-"""
 
 from pathlib import Path
 import warnings
