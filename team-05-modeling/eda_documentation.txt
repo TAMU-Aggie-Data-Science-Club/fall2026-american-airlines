@@ -1,0 +1,42 @@
+1. Dataset overview
+--------------------------------------------------------------------------------
+- Total Records: 1,533,522 rows
+- Core Columns: 7 active columns (`DEP_MONTH`, `DEP_YEAR`, `ORG_AIRPRT`, `DES_AIRPRT`, `OD_PAX`, `OD_REV_USD`, `SF_LOAD_TMS`)
+- Missing Values Audit: 0 missing values detected across all core features.
+- Memory Usage: ~124.3 MB (post-index cleanup)
+- Enriched Data Sources: Integrated with `AA_AIRPORT_INFO.csv` (18 metadata columns), FAA 2025 Commercial Enplanements & Hub Tiers, FAA 2025 All-Cargo Landed Weight, and U.S. Census Bureau 2025 Metro Population & Migration estimates.
+
+
+2. EDA
+--------------------------------------------------------------------------------
+A. Target Variable (`OD_REV_USD`):
+- Mean Revenue: $687,759.72
+- Median Revenue: $155,913.76
+- Standard Deviation: $1,880,158.82
+- Skewness: 12.0566 (Indicates a long tail of high-value intercontinental routes).
+- Log-Transformation (`np.log1p`): Reduced skewness to -0.3114, normalizing the distribution.
+
+B. Network & Route Economics:
+- Unique Origin & Destination Airports: 150 each.
+- Top Grossing Corridors: Dominated by intercontinental and transcontinental routes (e.g., `JFK -> LHR` at $4.58B, `LAX -> JFK` at $3.93B).
+- Passenger Volume & Yield: Cumulative passenger volume across the dataset reached 4.24 billion, yielding an average of $384.73 per passenger. Ultra-long-haul routes (e.g., DTW/DFW/SFO to PVG) exceeded $1,800 to $2,400+ per passenger.
+
+C. Macro & Temporal Trends (YoY & Seasonality):
+- Pandemic Impact & Recovery: Total revenue plunged from $148.07B in 2019 to $43.24B in 2020 (-70.8%), recovering steadily to peak at $190.50B in 2024 and $178.25B in 2025 (with partial-year records captured for 2026).
+- Monthly Seasonality: Consistent summer surges with June ($817.1k mean) and July ($784.0k mean) generating peak earnings, and February dipping to a seasonal low ($566.8k mean).
+
+D. External Hub Tier & Demographic Signals:
+- FAA Hub Tier Performance: Large hubs (`L`) generated $615.35B across 391.9k records ($1.57M mean revenue, 6,641 mean pax), outperforming Medium (`M`, $423.8k mean) and Small (`S`, $177.1k mean) hubs. International origins (`INTL_OR_OTHER`) commanded a 63% higher unit yield ($561.53/pax vs. $344.01/pax at Large domestic hubs).
+- External Feature Correlations (vs. `OD_REV_USD`): Destination and origin FAA 2025 enplanements (+0.364 and +0.362) and 2025 Census metro populations (+0.359 and +0.357) showed strong positive linear alignment with route revenue, while airport cargo weight showed modest positive correlation (+0.065).
+
+
+3. Feature Engineering
+--------------------------------------------------------------------------------
+Specific internal and external features were identified as the core predictive drivers:
+- `OD_PAX` (Passenger Volume): The single strongest direct predictor, displaying a massive 0.759 correlation with revenue (`OD_REV_USD`).
+- `ORG_AIRPRT` & `DES_AIRPRT` (Origin & Destination Airports): Categorical route identifiers encoded alongside `ORG_FAA_HUB` and `DES_FAA_HUB` tiers to capture domestic hub scale vs. elite international yields.
+- External Market Scale Features (`ORG_ENPLANEMENTS_25`, `DES_ENPLANEMENTS_25`, `ORG_METRO_POP_25`, `DES_METRO_POP_25`): FAA airport passenger volume and Census metro population size providing structural market-demand priors (~0.36 correlation each).
+- Airport Infrastructure & Economic Proxies (`ORG_CARGO_LBS_25`, `DES_CARGO_LBS_25`, runway length, and coordinates from `AA_AIRPORT_INFO.csv`): Capture commercial/cargo activity and enable Great-Circle route distance engineering.
+- `DEP_MONTH` & `DEP_YEAR` (Temporal Components): Capture macro recovery trends and recurring seasonal cycles.
+- Engineered Cyclical Features (`MONTH_SIN`, `MONTH_COS`): Sine and cosine transformations of departure months to preserve chronological continuity between December and January.
+- Route Historical Average Revenue (`ROUTE_AVG_REV`): Historical aggregate baseline revenue per origin-destination pair to give tree models strong priors.
