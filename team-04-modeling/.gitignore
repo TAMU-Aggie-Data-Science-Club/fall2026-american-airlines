@@ -1,0 +1,11 @@
+# NDA: data and anything computed from it stay out of git.
+*.csv
+*.parquet
+*.xlsx
+*.png
+results/*
+models/*
+!results/.gitkeep
+!models/.gitkeep
+__pycache__/
+.ipynb_checkpoints/
