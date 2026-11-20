@@ -1,14 +1,14 @@
 # team-04-modeling
 
-Team 04's Deliverable 3 work. Full brief:
+Team 04's final model: a two-year-ahead passenger forecast per route (XGBoost + Random Forest ensemble). Full brief:
 [`DELIVERABLES.md`](../DELIVERABLES.md#deliverable-3--real-data-ingestion--eda).
 
 ```
 team-04-modeling/
 ├── scripts/     # config.py (paths, settings), features.py (candidates, self-check), make_fake_data.py
-├── notebooks/   # 01_eda, 02_feature_set
-├── models/      # saved models and predictions (git-ignored)
-└── results/     # plots and summary tables (git-ignored, they carry real numbers)
+├── notebooks/   # 01–03 EDA (D3), 04–09 final model pipeline
+├── models/      # trained models (git-ignored)
+└── results/     # metrics and slide charts (git-ignored, they carry real numbers)
 ```
 
 The code uses generic column names. Until `data/real/columns.json` exists, it runs on made-up data from
@@ -43,9 +43,31 @@ Everything here stays in the git-ignored `data/real/` folder. Dhruv DMs you the 
    `02` also rewrites `FEATURES.md`, the documented feature set, with no numbers in it.
 4. Results on fake data mean nothing: use only what the real run shows.
 
+## Final model (notebooks 04–09)
+
+Built by Daniel Ko. Run in order from `team-04-modeling/notebooks/`; every path resolves to the repo-root `data/` folder.
+
+| Notebook | What it does |
+|---|---|
+| `04_collect_external_data` | World Bank GDP and population, FRED exchange rates, a monthly calendar table |
+| `05_build_dataset_part1` | Route-month spine, airports, calendar, BTS T-100 market data, FAA cargo |
+| `06_build_dataset_part2` | FAA enplanements, BEA county GDP and income, Census metro population and migration, country GDP |
+| `07_feature_engineering` | Distance, international flags, economic-gravity and purchasing-power scores, seasonality |
+| `08_model_exploration` | LightGBM, XGBoost, HistGradientBoosting and Random Forest on the same time-based split |
+| `09_final_model` | Tunes XGBoost + Random Forest, blends them, compares with a naive forecast, forecasts 24 months, saves slide charts |
+
+**Leakage rules.** Every outside feature is lagged two years (`DEP_YEAR - 2`), and route history enters only as
+24-month lags, so each prediction uses only what is known two years earlier. `*_L12` features are excluded: the
+two-year forecast never has them. Validation is the last 12 months of actuals, trained only on earlier months;
+COVID years (2020–2021) are left out of training targets.
+
+**Outputs (all git-ignored):** `results/pax_validation_vs_naive.csv`, `results/figures/*.png` (network monthly
+totals and feature importance only), `models/*`.
+
+Extra packages: `pip install xgboost lightgbm joblib wbgapi holidays geopandas shapely seaborn`
+
 ## Open questions for a PM
 
-- **Horizon:** how far ahead are we forecasting? `HORIZON` in `config.py` decides which lags are legal.
 - **Target:** what exactly does the passenger column measure?
 - **Absent months:** does a route with no row in a month mean zero, or below a reporting threshold?
 - **Latest months:** are they final?
