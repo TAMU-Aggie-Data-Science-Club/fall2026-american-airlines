@@ -17,11 +17,15 @@ Code: `notebooks/model_comparison.ipynb` (reads the D3 feature table from `noteb
 | Candidate | Owner | MAE | RMSE | WAPE | vs baseline |
 |---|---|---|---|---|---|
 | Same month last year (baseline) | Akshith | | | | — |
-| Ridge on `log1p` | Sahith | | | | |
+| Ridge on `log1p` | Sahith | 2,506 | 8,493 | 82.32% | 357.8% higher WAPE |
 | XGBoost, `log1p` + squared error | Aidan | | | | |
 | XGBoost, Poisson | Aidan | | | | |
 
 *(fill from section 6 of the notebook, rounded: MAE/RMSE to whole passengers, WAPE to 2 decimals)*
+
+**Ridge result — Sahith (Nov 21, 2026):** the supplied pipeline (`alpha=1.0`, training-only encoding and scaling)
+ran successfully, but its WAPE was 4.58 times the same-month-last-year baseline's 17.98%. Ridge did not beat the
+baseline on this holdout. This is the fixed-alpha comparison, not a tuned Ridge result.
 
 **Segments** (section 7): *(one or two sentences: domestic vs international, small vs large routes, new routes)*
 
