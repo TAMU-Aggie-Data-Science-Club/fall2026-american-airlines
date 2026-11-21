@@ -33,7 +33,7 @@ Document every source here as you adopt it. Replace these placeholders.
 | Source | Origin / URL | Access method | License | Sensitivity | Notes |
 |--------|--------------|---------------|---------|-------------|-------|
 | _e.g. Example Open Dataset_ | `https://…` | Manual download → `data/raw/` | CC-BY-4.0 | None | Updated annually |
-| | | | | | |
+| AA monthly passenger demand and airport reference | American Airlines, via project leads | Team-approved Drive download into `data/raw/` | Project NDA | Confidential | Directional route-month demand and airport metadata. Keep CSVs and derived audit outputs local. |
 
 ## Local layout convention
 
