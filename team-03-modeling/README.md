@@ -2,7 +2,20 @@
 
 **Team contributions:** This repository integrates Vignesh Nagarajan's forecasting implementation with the team's dictionary, COVID, business EDA and macro-price analyses. See [contributors](CONTRIBUTORS.md) and the [file-by-file integration manifest](docs/INTEGRATION_MANIFEST.md).
 
-**Status:** Integrated forecasting implementation; independent review and sponsor acceptance pending. **No AA confidential data or derived outputs belong here without explicit PM/sponsor authorization.**
+**Status:** Integrated forecasting implementation; independent review and sponsor acceptance pending. **No raw AA extracts belong in this repository.**
+
+## How the final work is evaluated
+
+The sponsor review asks six questions. The package is built to answer them in that order. [The evaluation brief](docs/EVALUATION.md) states each answer, the module that implements it, and the measured result from the completed local run.
+
+| Question | Code |
+| --- | --- |
+| Problem-Solving Approach | `src/aaforecast/model.py`, `pipeline.py`, `backtest.py` |
+| Data Aggregation | `src/aaforecast/data.py`, `validate.py` |
+| Initial Data Exploration | `src/aaforecast/eda.py` |
+| Creativity & Uniqueness | `model.py`, `backtest.py`, `experiments.py` |
+| Methodology | `docs/methodology.md`, `features.py`, `config.py` |
+| Accuracy & Performance | `metrics.py`, `submission.py` |
 
 Our mission is to build a reproducible market-demand forecasting and **automated ML experimentation** system for the American Airlines Network Planning project. We target 1–24-month forecasts and investigate 36-month long-haul forecasting if historical evidence supports evaluation.
 
