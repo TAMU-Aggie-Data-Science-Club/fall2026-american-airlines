@@ -63,8 +63,8 @@ from scipy import stats  # noqa: E402
 # Configuration
 # ---------------------------------------------------------------------------
 # Split by COUNTRY, not by state/province (AU, BR, IN, AR airports also have
-# states). US territories count as US because DOT treats those flights as domestic.
-US_CA = {"US", "CA", "PR", "VI", "GU", "AS", "MP"}
+# states). This descriptive grouping includes Canada. The scored forecast does not.
+from aaforecast.geo import BUSINESS_US_CA as US_CA
 COVID_START = pd.Timestamp("2020-03-01")
 COVID_END = pd.Timestamp("2022-12-01")
 BASE_YEAR = 2019              # pre-COVID benchmark year

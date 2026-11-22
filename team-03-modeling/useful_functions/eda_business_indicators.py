@@ -48,7 +48,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-US_CA = {"US", "CA", "PR", "VI", "GU", "AS", "MP"}  # business definition: adjust
+from aaforecast.geo import BUSINESS_US_CA as US_CA  # descriptive grouping; scored domestic excludes Canada
 COVID_START, COVID_END = "2020-03-01", "2022-12-01"
 KEY = ["ORG_AIRPRT", "DES_AIRPRT", "DEP_YEAR", "DEP_MONTH"]
 REQUIRED = KEY + ["OD_PAX", "OD_REV_USD"]

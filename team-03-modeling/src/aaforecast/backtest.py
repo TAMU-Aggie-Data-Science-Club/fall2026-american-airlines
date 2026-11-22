@@ -25,6 +25,15 @@ METHODS = ["anchor_adjust", "seasonal_anchor", "same_month_last_year", "same_mon
 SIZE_LABELS = ["<1k", "1k-10k", "10k-50k", "50k-200k", "200k+"]
 
 
+def eligible_origin(origin_idx: int, n_months: int, horizons) -> bool:
+    """Keep an origin when its shortest horizon still lands inside the panel.
+
+    A longer horizon with no actual yet is dropped row by row. Requiring the
+    longest horizon would throw away 12-to-18-month evidence for that origin.
+    """
+    return int(origin_idx) + min(horizons) < int(n_months)
+
+
 def select_shrink(folds, origin, cfg):
     """Score weights on earlier predictions with labels available by origin."""
     cutoff = pd.Timestamp(origin) - pd.DateOffset(months=cfg.label_lag_months)
@@ -74,7 +83,7 @@ def run_backtest(builder: FeatureBuilder, cfg: RunConfig) -> dict[str, pd.DataFr
     folds = []
     for label in sorted(cfg.backtest_origins):
         T = builder.p.month_index(label)
-        if T + max(cfg.horizons) >= n_months:
+        if not eligible_origin(T, n_months, cfg.horizons):
             log.warning("Skipping origin %s: not enough actuals after it", label)
             continue
         model = AnchorAdjustModel(cfg).fit(full[full["target_idx"] <= T - cfg.label_lag_months])

@@ -15,7 +15,7 @@ A useful answer has to do four things:
 
 ## Forecast Structure
 
-For market `m`, forecast origin `t`, and horizon `h` from 12 to 18 months:
+For market `m`, forecast origin `t`, and horizon `h`. The release configuration uses 12 to 24 months, and a horizon is scored only when that target month is already in the extract:
 
 ```
 anchor_m    = (trailing 12-month demand / 12) x exp(seasonal shape for the target month)

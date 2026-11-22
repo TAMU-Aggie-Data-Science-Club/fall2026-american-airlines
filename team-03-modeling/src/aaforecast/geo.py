@@ -8,7 +8,11 @@ import pandas as pd
 from .config import AA_HUBS
 
 EARTH_RADIUS_KM = 6371.0088
-US_COUNTRIES = {"US", "PR", "VI", "GU"}
+# Scored forecast. US territories that DOT treats as domestic. Canada is international.
+MODEL_DOMESTIC = frozenset({"US", "PR", "VI", "GU"})
+# Descriptive team scripts. Not the scored segment, and not interchangeable with it.
+BUSINESS_US_CA = frozenset({"US", "CA", "PR", "VI", "GU", "AS", "MP"})
+US_COUNTRIES = MODEL_DOMESTIC
 
 
 def haversine_km(lat1, lon1, lat2, lon2) -> np.ndarray:

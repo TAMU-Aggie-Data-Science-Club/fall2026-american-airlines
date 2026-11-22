@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from aaforecast import config, pipeline, metrics
-from aaforecast.backtest import select_shrink, interval_table, apply_aggregate_interval
+from aaforecast.backtest import select_shrink, interval_table, apply_aggregate_interval, eligible_origin
 from aaforecast.config import RunConfig
 from aaforecast.runs import run_directory, validate_backtest
 from test_features_model import _builder
@@ -15,6 +15,13 @@ def selection_frame():
     return pd.DataFrame({"origin": pd.to_datetime(["2020-01-01"] * 2),
         "target_month": pd.to_datetime(["2021-01-01"] * 2), "y": [50., 150.],
         "anchor": [100., 100.], "raw_mix": [-1., 1.], "origin_idx": [0, 0], "horizon": [12, 12]})
+
+
+def test_origin_with_a_short_horizon_stays_eligible():
+    # January 2025 in a panel that ends July 2026 can score 18 months, not 24.
+    assert eligible_origin(72, 91, range(12, 25))
+    assert not eligible_origin(80, 91, range(12, 25))
+    assert not eligible_origin(72, 91, (24,))
 
 
 def test_selection_waits_for_mature_labels():

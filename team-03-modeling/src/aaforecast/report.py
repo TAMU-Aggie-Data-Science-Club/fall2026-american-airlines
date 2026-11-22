@@ -77,7 +77,7 @@ def backtest_report(res: dict[str, pd.DataFrame], out_dir: Path) -> str:
     text = "\n".join([
         "# Backtest Summary",
         "",
-        "Rolling origins: " + ", ".join(sorted(res["predictions"]["fold"].unique())) + ". Each fold trains only on data available at its origin and forecasts 12 to 18 months ahead.",
+        "Rolling origins: " + ", ".join(sorted(res["predictions"]["fold"].unique())) + ". Each fold trains only on data available at its origin and forecasts horizons " + f"{int(bh['horizon'].min())} to {int(bh['horizon'].max())}" + ". A horizon is scored only when its target month is already in the extract.",
         "",
         "## Error By Planning Level (WAPE, Lower Is Better)",
         md_table(levels, pct),
@@ -122,7 +122,7 @@ def forecast_report(res: dict[str, pd.DataFrame], out_dir: Path, target_label: s
     ax.bar(x, nf["forecast"], width=20, label="Forecast")
     ax.errorbar(x, nf["forecast"], yerr=[nf["forecast"] - nf["lower"], nf["upper"] - nf["forecast"]], fmt="none", color="k", capsize=3)
     ax.plot(x, nf["last_same_month"], "o", color="tab:orange", label="Same month, last year")
-    ax.set_title(f"Network {target_label}, 12 to 18 months ahead")
+    ax.set_title(f"Network {target_label}, forecast horizon")
     ax.legend()
     fig.autofmt_xdate()
     fig.tight_layout()

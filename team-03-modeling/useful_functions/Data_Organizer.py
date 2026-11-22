@@ -3,8 +3,7 @@ import argparse
 import json
 from pathlib import Path
 from aaforecast.data import load_pax, load_airports
-
-US_CA = {'US', 'CA', 'PR', 'VI', 'GU', 'AS', 'MP'}
+from aaforecast.geo import BUSINESS_US_CA as US_CA
 
 
 def build_dictionaries(frame, airports):

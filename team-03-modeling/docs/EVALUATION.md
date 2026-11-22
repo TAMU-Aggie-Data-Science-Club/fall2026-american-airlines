@@ -1,6 +1,6 @@
 # Team 3 evaluation brief
 
-These six questions are the final review. Each section states the decision, the module that carries it, and the result of the completed local run `20261122T054112Z` at source revision `cbc0ca8`. That run scored horizons 12–18 on matched cases. It is a retrospective evaluation of periods that had already been inspected. It is not an untouched holdout.
+These six questions are the final review. Each section states the decision, the module that carries it, and the result of the completed local run `20261122T062603Z` at source revision `7b5618c`. That run scores horizons 12–24 on matched cases, and it drops a horizon when the target month is not in the extract yet. It is a retrospective evaluation of periods that had already been inspected. It is not an untouched holdout.
 
 `python -m aaforecast submission-report` writes the same six headings from a completed backtest. This file is the reviewer copy of that run.
 
@@ -22,7 +22,7 @@ The passenger extract is directional origin-destination-month traffic. `src/aafo
 
 Airport attributes are joined for country, hub, runway, and coordinates. `validate.py` stops the run when the extract fails required checks. Airport and network scores are sums of the same market forecasts. Hub totals overlap, so hubs are not added together.
 
-The release run used airport metadata, left external macro features off, and assumed a one-month label lag.
+The supplied extract has 1,533,522 rows from January 2019 through July 2026. It has no duplicate origin-destination-month keys and no key with two load timestamps, so summing duplicate keys does not change this file. The release run used airport metadata, left external macro features off, and assumed a one-month label lag.
 
 ## 3. Initial Data Exploration
 
@@ -45,14 +45,14 @@ Three choices keep that claim checkable:
 - Every method is scored on the same finite market-origin-horizon cases (`metrics.py`). A missing key fails the run.
 - Feature ablations in `experiments.py` may turn off a named feature group. They cannot change the split, the horizon set, or the metric.
 
-The domestic definition in the model is US/PR/VI/GU. The older business scripts also treat Canada and other territories as domestic. Those outputs are not interchangeable.
+`geo.MODEL_DOMESTIC` is US/PR/VI/GU and is what the scored forecast uses. `geo.BUSINESS_US_CA` also includes Canada, American Samoa, and the Northern Mariana Islands. The COVID, business, and macro scripts use that second set on purpose. Their “domestic” totals are not the model’s domestic segment.
 
 ## 5. Methodology
 
 Documented in `docs/methodology.md` and executed from `configs/release.json`.
 
 - Target: observed directional O&D passengers per month.
-- Horizons: 12 through 18 months. The command accepts 1–24, but those other horizons do not have this run's evidence. No 36-month model is claimed.
+- Horizons: 12 through 24 months. Months 19–24 are scored for the January, April, and July 2024 origins, because those target months fall on or before July 2026. The October 2024 and January 2025 origins are scored through the months that exist and are not deleted for lacking a 24-month actual. No 36-month model is claimed.
 - Origins: January, April, July, and October 2024, plus January 2025. Each origin trains only on labels available at that origin minus the configured lag.
 - Model: scikit-learn `HistGradientBoostingRegressor` on relative log movement, then rescaled so markets sum to the seasonal network outlook.
 - References on the same cases: seasonal anchor, same month last year, and last year times trend.
@@ -61,19 +61,21 @@ Documented in `docs/methodology.md` and executed from `configs/release.json`.
 
 ## 6. Accuracy & Performance
 
-598,654 matched market cases. WAPE is total absolute error divided by total actual passengers. Positive bias is overprediction. MAE and RMSE are in passengers per market-month.
+957,727 matched market cases. WAPE is total absolute error divided by total actual passengers. Positive bias is overprediction.
 
-| Method | Market WAPE | Market bias | MAE | RMSE |
-| --- | ---: | ---: | ---: | ---: |
-| Anchor and Adjust | 18.0% | +2.4% | 565 | 1,409 |
-| Seasonal anchor only | 18.2% | +2.4% | 571 | 1,428 |
-| Same month last year | 19.0% | +3.2% | 595 | 1,494 |
-| Last year × trend | 24.3% | +12.5% | 762 | 1,947 |
+| Method | Market WAPE | Network WAPE |
+| --- | ---: | ---: |
+| Anchor and Adjust | 19.6% | 7.0% |
+| Seasonal anchor only | 19.6% | 7.0% |
+| Same month last year | 20.2% | 6.8% |
+| Last year × trend | 26.6% | 15.3% |
 
-The learned mix improves the anchor by about 0.2 WAPE points at market level. It is strongest on larger markets (13.4% WAPE above 200k trailing passengers, 53.4% below 1k). At network level, same-month-last-year is better: 5.3% WAPE versus 5.6% for Anchor and Adjust. With network growth set to zero, the published network total equals the seasonal anchor by construction.
+On every scored fold the matured evidence selected a mix weight of zero, so the evaluated Anchor and Adjust forecast is the seasonal anchor. A grid that peeks at the same folds prefers a weight of 0.50 and a market WAPE of 19.62% against 19.99% at weight zero. That peek is not the result. The forward forecast, made after more outcomes had matured, uses a weight of 0.25. About 95% of its market rows move off the anchor, by a median of about 12 passengers, and the network total is then scaled back to the seasonal outlook.
 
-Error grows with horizon: market WAPE is 15.8% at 12 months and 19.0% at 18 months.
+Error grows with horizon. Market WAPE is 15.9% at 12 months, 19.2% at 18 months, and 22.1% at 24 months. At 24 months, same-month-last-year is slightly better (21.8%). Domestic market WAPE is 18.0%. International is 25.1%. Markets above 200,000 trailing passengers are at 15.0%. Markets under 1,000 are at 55.1%.
 
-Nominal 80% intervals covered 82.9% of cases for the January 2024 origin and 68.8% for the January 2025 origin. Volume-weighted coverage on that last origin is 60.8%. The intervals are too narrow on the later folds. The production forward run, July 2027 through January 2028, uses the same anchor-scaled outlook and does not include the optional explanation charts.
+Nominal 80% intervals covered 82.8% of cases for the January 2024 origin and 69.0% for the January 2025 origin. Volume-weighted coverage on that last origin is 60.9%. The bands are too narrow on the later folds. They were not widened with those folds' own outcomes.
+
+The forward network outlook runs from July 2027 through July 2028. With network growth left at zero, each month's network total equals that month's seasonal anchor. Same-month-last-year remains the stronger network benchmark in the backtest (6.8% versus 7.0%).
 
 These figures describe the retrospective run above. They are aggregate scores, not a license to treat the model as approved for scheduling.

@@ -18,6 +18,11 @@ def test_nearest_respects_distance_cap():
     assert dist[0] < 20
 
 
+def test_domestic_definitions_stay_distinct():
+    assert geo.MODEL_DOMESTIC == frozenset({"US", "PR", "VI", "GU"})
+    assert geo.BUSINESS_US_CA - geo.MODEL_DOMESTIC == frozenset({"CA", "AS", "MP"})
+
+
 def test_market_attributes(airports):
     markets = pd.DataFrame({"org": ["DFW", "DFW"], "des": ["LAX", "CUN"]})
     a = geo.market_attributes(markets, airports)

@@ -86,7 +86,7 @@ FX_SERIES = {
 }
 FX_LAG = 0
 
-US_CA = {"US", "CA", "PR", "VI", "GU", "AS", "MP"}  # territories count as US
+from aaforecast.geo import BUSINESS_US_CA as US_CA  # descriptive grouping; scored domestic excludes Canada
 COVID_START, COVID_END = "2020-03-01", "2022-12-01"
 MIN_OBS = 24
 Q_THRESHOLD = 0.05
