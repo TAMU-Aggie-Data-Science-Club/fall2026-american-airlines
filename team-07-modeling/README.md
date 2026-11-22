@@ -5,9 +5,22 @@ Team 07's work on the real American Airlines data (Deliverable 3 onward). Full b
 
 ```
 team-07-modeling/
-├── notebooks/   # EDA + feature set (run 00 first; every other notebook %runs it)
-├── models/      # saved models + predictions (Deliverable 4)
-└── results/     # plots and summary tables
+├── xgboost_model.py  # final model (Deliverable 4): two-year OD_PAX forecast
+├── notebooks/        # EDA + feature set (run 00 first; every other notebook %runs it)
+├── models/           # forecast outputs written by xgboost_model.py (git-ignored)
+└── results/          # model comparison and baseline decision write-ups
+```
+
+## Final model (Deliverable 4)
+
+[`xgboost_model.py`](xgboost_model.py) is the team's final model. It forecasts passengers (`OD_PAX`) for every
+route, for each of the 24 months after a forecast date, using only data up to that date. Results and
+reasoning: [`results/model-comparison.md`](results/model-comparison.md) and
+[`results/baseline-decision.md`](results/baseline-decision.md).
+
+```
+python team-07-modeling/xgboost_model.py             # test results + the 2026-08 to 2028-07 forecast (~3 min)
+python team-07-modeling/xgboost_model.py --backtest  # also re-tests from 5 forecast dates (~4 min)
 ```
 
 ## Setup
@@ -28,10 +41,11 @@ team-07-modeling/
 |---|---|---|
 | `00_load_and_preprocess` | Patrick | `team-07-main` |
 | `01_schema_and_missingness` | Kingston | `team-07-kingston` |
-| `02_distributions_and_outliers` | Lasya | `team-07-lasya` |
+| `02_distributions_and_outliers` | Lasya | `team-07-srilasyakamma` |
 | `03_time_and_relationships` | Ranbin | `team-07-ranbin` |
-| `04_leakage_cardinality_airports` | Xiaojie | `team-07-xiaojie` |
-| `05_feature_set` | Patrick, after 01–04 are merged | `team-07-main` |
+| `04_leakage_cardinality_airports` | Xiaojie | `team-07-xiaojie-chen` |
+| `05_feature_set` | Team 7 | `team-07-kingston` |
+| `xgboost_model.py` (Deliverable 4) | Team 7 | `team-07-kingston` |
 
 Each EDA notebook ends with an *observation → modelling consequence* table. `05` turns those tables
 into the team's model family and feature set.
