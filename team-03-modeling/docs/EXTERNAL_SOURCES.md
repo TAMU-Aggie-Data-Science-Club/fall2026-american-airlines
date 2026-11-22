@@ -1,0 +1,16 @@
+# AA-provided supplementary resources
+
+These resources supplement the existing passenger pipeline and Team 3 EDA. Public source availability does not establish permission to release sponsor-derived results. The user supplied these sources for project use on November 21, 2026.
+
+Public airport replacement: `python -m aaforecast fetch-airports` retrieves the complete [OurAirports reference and runways](https://github.com/davidmegginson/ourairports-data) under its Unlicense/public-domain dedication. Matching happens locally, with no AA market list transmitted. The derived reference supplies coordinates, country, elevation and maximum runway length; DOT world-area codes remain unknown and airports are not silently pooled into inferred metro regions. A public [airport operator notice](https://www.pbia.org/articles/post/president-donald-j-trump-international-airport-name-change-takes-effect/) documents the PBI-to-DJT change; the lookup preserves PBI as a historical reference alias without rewriting passenger market keys. Current public airport attributes are a snapshot, not verified historical airport vintages.
+
+| Resource | Official reference | Existing implementation and use | Timing/verification status |
+|---|---|---|---|
+| Metropolitan population | https://www.census.gov/programs-surveys/popest.html | `external/census.py`: CBSA population and catchment demographics | Latest estimate files revise earlier years; historical vintages and release dates require verification |
+| County boundaries / locations | https://www.census.gov/geographies/mapping-files.html | `external/census.py` and `catchment.py`: nearest-airport catchments using county internal points, not polygon-area allocation | Imported fetcher uses an Opendatasoft boundary-derived centroid dataset; verify exact intended source, geographic vintage, license and coverage before final adoption |
+| FAA enplanements | https://www.faa.gov/airports/planning_capacity/passenger_allcargo_stats/passenger | `external/faa.py`: annual airport-level activity context | Official page distinguishes calendar-year data and later publication; use actual historical releases, not a universal assumed date |
+| County-to-county migration | https://www.census.gov/topics/population/migration/guidance/county-to-county-migration-flows.html | `external/census.py` and `catchment.py`: migration ties between catchments | Multi-year flow estimates are not monthly airline observations; vintage availability and parsing require validation before model use |
+
+Official FAA and Census migration pages were checked during integration. The FAA page describes annual airport boarding data, not AA-specific O&D demand. These units must not be substituted for the forecast target. Census migration provides population movement context, not direct air travel demand.
+
+Default release runs exclude external features. To explore the imported source pipeline locally with the airport reference file present: `python -m aaforecast fetch`. Inspect `outputs/validation/external_status.json` and the actual per-source cache before enabling `--external`. Download failures do not prove a source is zero or unavailable historically. Record access/license terms (currently not independently verified for every source), retrieval date, geographic keys, vintage, release/revision timing and ablation evidence.
