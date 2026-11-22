@@ -1,0 +1,6 @@
+{
+  "trials": [
+    {"name": "all_available_features", "disabled_groups": []},
+    {"name": "without_fares", "disabled_groups": ["fare"]}
+  ]
+}
