@@ -1,9 +1,4 @@
-"""Team 07 Deliverable 4 candidate: XGBoost two-year demand forecast (OD_PAX).
-
-Run from anywhere inside the repo:  python team-07-modeling/xgboost_model.py
-Needs data/raw/*PAX_FORECASTING*.csv and data/raw/*AIRPORT_INFO*.csv (NDA data, never commit).
-Writes the test forecast to team-07-modeling/models/xgboost_test_forecast.csv (git-ignored).
-"""
+import argparse
 import time
 import warnings
 from pathlib import Path
@@ -17,6 +12,7 @@ HORIZON = 24
 FIRST_TRAIN_ORIGIN = pd.Timestamp("2022-07-01")
 VAL_START = pd.Timestamp("2023-07-01")
 TEST_ORIGIN = pd.Timestamp("2024-07-01")
+BACKTEST_ORIGINS = pd.date_range("2023-07-01", TEST_ORIGIN, freq="3MS")
 INTERVAL = (0.10, 0.90)
 
 PARAMS = dict(
@@ -72,12 +68,12 @@ def _decimal_coord(a, kind):
     return deg.where(~a[f"{kind}_HEMSPHR_CD"].isin(["S", "W"]), -deg)
 
 
-def build_features(pax, airports, origins, horizon=HORIZON, max_target=None):
+def build_features(pax, airports, origins, horizon=HORIZON, max_target=None, future=False):
     """One row per (route, forecast date, target month); every feature uses only months up to the forecast date."""
     df = pax.copy()
     df["DATE"] = pd.to_datetime(dict(year=df["DEP_YEAR"], month=df["DEP_MONTH"], day=1))
     df["ROUTE"] = df["ORG_AIRPRT"] + "-" + df["DES_AIRPRT"]
-    months = pd.date_range(df["DATE"].min(), df["DATE"].max(), freq="MS")
+    months = pd.date_range(df["DATE"].min(), df["DATE"].max() + pd.DateOffset(months=horizon if future else 0), freq="MS")
     col = {m: i for i, m in enumerate(months)}
 
     wide_pax = df.pivot(index="ROUTE", columns="DATE", values=TARGET).reindex(columns=months)
@@ -146,7 +142,8 @@ def build_features(pax, airports, origins, horizon=HORIZON, max_target=None):
                 TARGET: P[:, t],
             }))
     out = pd.concat(parts, ignore_index=True)
-    return out[out[TARGET].notna()].reset_index(drop=True)
+    keep = out["months_seen_12"] > 0 if future else out[TARGET].notna()
+    return out[keep].reset_index(drop=True)
 
 
 def score(actual, predicted):
@@ -201,7 +198,67 @@ def apply_bands(df, pred, half, edges):
     return pred * np.exp(-h), pred * np.exp(h)
 
 
+def fit_model(train, n_trees):
+    d = xgb.DMatrix(train[FEATURES], np.log1p(train[TARGET]), weight=route_weight(train), enable_categorical=True)
+    return xgb.train(PARAMS, d, num_boost_round=n_trees)
+
+
+def predict(model, df):
+    raw = np.expm1(model.predict(xgb.DMatrix(df[FEATURES], enable_categorical=True)))
+    return raw, reconcile(df, raw)
+
+
+def backtest(pax, airports, train, n_trees):
+    rows = {}
+    for origin in BACKTEST_ORIGINS:
+        tr = train[(train["ORIGIN"] < origin) & (train["DATE"] <= origin)]
+        te = build_features(pax, airports, [origin])
+        _, pred = predict(fit_model(tr, n_trees), te)
+        naive = naive_forecast(te).to_numpy()
+        y = te[TARGET].to_numpy()
+        year1 = (te["h"] <= 12).to_numpy()
+        for label, m in (("year 1", year1), ("year 2", ~year1), ("all 24 months", np.ones(len(te), bool))):
+            rows[(f"{origin:%Y-%m}", label)] = {
+                "model WAPE": score(y[m], pred[m])["WAPE"], "naive WAPE": score(y[m], naive[m])["WAPE"],
+                "model bias": score(y[m], pred[m])["bias"], "training forecast dates": tr["ORIGIN"].nunique(),
+            }
+    table = pd.DataFrame(rows).T
+    table["model wins"] = table["model WAPE"] < table["naive WAPE"]
+    print("rolling-origin backtest (each forecast date uses only data up to that date)")
+    print(table.round(3).to_string())
+    avg = table.groupby(level=1)[["model WAPE", "naive WAPE"]].mean()
+    print("\naverage over forecast dates:")
+    print(avg.round(3).to_string(), "\n")
+    return table
+
+
+def forecast_future(pax, airports, n_trees, half, edges, repo_root):
+    last = pd.to_datetime(dict(year=pax["DEP_YEAR"], month=pax["DEP_MONTH"], day=1)).max()
+    origins = pd.date_range(FIRST_TRAIN_ORIGIN, last - pd.DateOffset(months=1), freq="MS")
+    train = build_features(pax, airports, origins, max_target=last)
+    future = build_features(pax, airports, [last], future=True)
+    future["xgb_raw"], future["forecast"] = predict(fit_model(train, n_trees), future)
+    future["low"], future["high"] = apply_bands(future, future["forecast"].to_numpy(), half, edges)
+
+    recent = pax[pd.to_datetime(dict(year=pax["DEP_YEAR"], month=pax["DEP_MONTH"], day=1)) > last - pd.DateOffset(months=12)][TARGET].sum()
+    year1 = future["h"] <= 12
+    print(f"two-year forecast made at {last:%Y-%m} for {future['DATE'].min():%Y-%m} to {future['DATE'].max():%Y-%m}: "
+          f"{future['ROUTE'].nunique():,} routes, trained on {len(origins)} forecast dates ({len(train):,} rows)")
+    print("forecast total vs the last 12 actual months:",
+          {"year 1": f"{future.loc[year1, 'forecast'].sum() / recent - 1:+.1%}",
+           "year 2": f"{future.loc[~year1, 'forecast'].sum() / recent - 1:+.1%}"})
+
+    out = repo_root / "team-07-modeling" / "models" / f"xgboost_forecast_{future['DATE'].min():%Y-%m}_to_{future['DATE'].max():%Y-%m}.csv"
+    future[["ROUTE", "ORG_AIRPRT", "DES_AIRPRT", "ORIGIN", "DATE", "h", "forecast", "low", "high"]].to_csv(out, index=False)
+    print(f"saved to {out.relative_to(repo_root)} (git-ignored)\n")
+    return future
+
+
 def main():
+    parser = argparse.ArgumentParser(description="Team 07 XGBoost two-year OD_PAX forecast")
+    parser.add_argument("--backtest", action="store_true", help="also re-test from several forecast dates (adds ~3 min)")
+    args = parser.parse_args()
+
     start = time.time()
     repo_root = find_repo_root()
     pax, airports = load_data(repo_root)
@@ -217,12 +274,9 @@ def main():
     fit = train["DATE"] < VAL_START
     val = (train["ORIGIN"] < VAL_START) & (train["DATE"] >= VAL_START)
     weight = route_weight(train)
-    d_fit = xgb.DMatrix(train.loc[fit, FEATURES], np.log1p(train.loc[fit, TARGET]), weight=weight[fit],
-                        enable_categorical=True)
-    d_val = xgb.DMatrix(train.loc[val, FEATURES], np.log1p(train.loc[val, TARGET]), weight=weight[val],
-                        enable_categorical=True)
-    search = xgb.train(PARAMS, d_fit, num_boost_round=3000, evals=[(d_val, "val")],
-                       early_stopping_rounds=100, verbose_eval=False)
+    d_fit = xgb.DMatrix(train.loc[fit, FEATURES], np.log1p(train.loc[fit, TARGET]), weight=weight[fit], enable_categorical=True)
+    d_val = xgb.DMatrix(train.loc[val, FEATURES], np.log1p(train.loc[val, TARGET]), weight=weight[val], enable_categorical=True)
+    search = xgb.train(PARAMS, d_fit, num_boost_round=3000, evals=[(d_val, "val")], early_stopping_rounds=100, verbose_eval=False)
     n_trees = search.best_iteration + 1
 
     val_df = train.loc[val]
@@ -265,7 +319,14 @@ def main():
 
     out = repo_root / "team-07-modeling" / "models" / "xgboost_test_forecast.csv"
     test[["ROUTE", "ORIGIN", "DATE", "h", TARGET, "naive", "forecast", "low", "high"]].to_csv(out, index=False)
-    print(f"saved test forecast to {out.relative_to(repo_root)} (git-ignored)  total time: {time.time() - start:.0f}s")
+    print(f"saved test forecast to {out.relative_to(repo_root)} (git-ignored)\n")
+
+    if args.backtest:
+        backtest(pax, airports, train, n_trees)
+
+    future_half, future_edges = interval_bands(test, test["forecast"].to_numpy())
+    forecast_future(pax, airports, n_trees, future_half, future_edges, repo_root)
+    print(f"total time: {time.time() - start:.0f}s")
 
 
 if __name__ == "__main__":
