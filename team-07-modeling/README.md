@@ -44,8 +44,8 @@ python team-07-modeling/xgboost_model.py --backtest  # also re-tests from 5 fore
 | `02_distributions_and_outliers` | Lasya | `team-07-srilasyakamma` |
 | `03_time_and_relationships` | Ranbin | `team-07-ranbin` |
 | `04_leakage_cardinality_airports` | Xiaojie | `team-07-xiaojie-chen` |
-| `05_feature_set` | Kingston (planned for Patrick) | `team-07-kingston` |
-| `xgboost_model.py` (Deliverable 4) | Kingston | `team-07-kingston` |
+| `05_feature_set` | Team 7 | `team-07-kingston` |
+| `xgboost_model.py` (Deliverable 4) | Team 7 | `team-07-kingston` |
 
 Each EDA notebook ends with an *observation → modelling consequence* table. `05` turns those tables
 into the team's model family and feature set.

@@ -6,7 +6,7 @@
 ## Selected model
 
 **XGBoost, one global model across all routes, reconciled top-down to a seasonal-naive network total.**
-Code: [`xgboost_model.py`](../xgboost_model.py) (Kingston).
+Code: [`xgboost_model.py`](../xgboost_model.py) (Team 7).
 
 ## Why
 
@@ -24,8 +24,8 @@ Code: [`xgboost_model.py`](../xgboost_model.py) (Kingston).
 ## What carries forward into Deliverable 5
 
 - The forecast-date setup: one forecast date, predictions for months 1–24, test on 2024-07.
-- The feature set from `notebooks/05_feature_set.ipynb`, plus Xiaojie's airport attributes, Ranbin's
-  COVID-history flag, and the route history features from the teammate notebook `XGBoost_model.ipynb`.
+- The feature set from `notebooks/05_feature_set.ipynb`, including the airport attributes per route end (04),
+  the COVID-history flag (03), and the route history features.
 - Training on log passengers with square-root route-size weights, early stopping on validation.
 - Top-down reconciliation to the seasonal-naive network total, and symmetric 80% ranges.
 - The real forecast for **2026-08 to 2028-07**, produced by the same script from all data through 2026-07.

@@ -33,7 +33,7 @@ Each forecast is made from a *forecast date* (the last month the model may see) 
 | Candidate | WAPE (2 yrs) | Year 1 | Year 2 | RMSE | Bias |
 |---|---|---|---|---|---|
 | Seasonal naive (same month, latest year) | 18.3% | 15.1% | 21.7% | 1,473 | +4.1% |
-| Teammate XGBoost (`XGBoost_model.ipynb`), rebuilt on the shared test | 21.6% | 18.4% | 25.0% | 1,667 | +8.9% |
+| Alternative XGBoost (raw counts, year/month, route averages), rebuilt on the shared test | 21.6% | 18.4% | 25.0% | 1,667 | +8.9% |
 | XGBoost, raw | 20.0% | 14.6% | 25.8% | 1,624 | +11.6% |
 | **XGBoost, reconciled to naive network total (final)** | **17.1%** | **13.7%** | **20.8%** | **1,379** | +4.1% |
 
@@ -55,7 +55,7 @@ missing months without special treatment, trains in under a minute, and shows fe
 weakness is that trees cannot extrapolate: trained on 2022–2024, a recovery period, the raw model
 learned growth and forecast 18% too many passengers in year 2.
 
-**Teammate XGBoost.** Built to help improve the main model. Its route history features (all-time route
+**Alternative XGBoost.** Built to help improve the main model. Its route history features (all-time route
 average, all-time same-month average, months reported) were added to the final model, where they
 improved both validation (17.29% → 17.23%) and test (17.31% → 17.11%). On its own it trails naive: it
 trains on raw counts, so it predicts negative passengers for roughly 900–3,800 route-months per forecast,
@@ -73,19 +73,19 @@ network growth or decline; that comes entirely from the naive total.
 |---|---|
 | Every lag at least 24 months old (no forecast date) | 29% WAPE: too much recent data thrown away |
 | Predicting change vs. the naive value | Worse: learned recovery growth even more strongly |
-| Tweedie loss (Ranbin, 03) | Better on validation, worse on test |
+| Tweedie loss (03) | Better on validation, worse on test |
 | Blending toward naive as the horizon grows | Validation picked no blend |
 | More training history (from 2021-07 or 2022-01) | Worse on the same validation rows |
 | Reconciling per origin airport | Worse on validation |
 | Tree depth 6 / 10, learning rate 0.1, larger min child weight, averaging 3 seeds | No gain on both validation and test |
 | Smoother network total (12-month level × seasonal shape) | Won on earlier recovery-period dates, lost on the 2024-07 test (11.2% vs 8.6% year-2 network miss) |
 | LSTM | Not run: 91 months per route with COVID in the middle is too little clean history |
-| ARIMA per route | Not run by Kingston: ~17,000 separate fits; open for a teammate on top routes or network totals |
+| ARIMA per route | Not run: ~17,000 separate fits; could be tried on top routes or network totals |
 
-| Blending in the teammate model at 25% | 17.1% → 17.0% on test; too small to justify a second model |
+| Blending in the alternative XGBoost at 25% | 17.1% → 17.0% on test; too small to justify a second model |
 
-Kept from teammates: Xiaojie's airport attributes per route end and Ranbin's COVID-history flag (they
-helped once reconciliation was in place), plus the route history features from `XGBoost_model.ipynb`.
+Kept from the EDA and the alternative model: the airport attributes per route end (04) and the COVID-history
+flag (03), which helped once reconciliation was in place, plus the route history features.
 
 ## How to reproduce
 
