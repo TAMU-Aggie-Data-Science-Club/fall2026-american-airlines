@@ -12,6 +12,16 @@ deliverable1/data/*
 deliverable2/data/*
 !deliverable2/data/.gitkeep
 
+# Team modeling folders (Deliverable 3+): the AA dataset is under NDA. Data only
+# ever lives in data/raw|interim|processed; this is a safety net in case a copy or
+# export of it is saved next to a notebook by mistake.
+team-*-modeling/**/*.csv
+team-*-modeling/**/*.parquet
+team-*-modeling/**/*.xlsx
+team-*-modeling/**/*.xls
+team-*-modeling/**/*.feather
+team-*-modeling/**/*.pkl
+
 # --- Agent / private working notes ----------------------------------------
 # Scratch planning files (see AGENTS.md) — never part of a PR.
 .planning/
