@@ -75,7 +75,7 @@ Keep approved inputs in `data/raw/`, or set `AAF_PAX_FILE` and `AAF_AIRPORT_FILE
 .venv/Scripts/python -m aaforecast submission-report --backtest-run <completed-run-directory> --forecast-run <forecast-directory>
 ```
 
-`--passenger-only` explicitly permits a run without airport metadata; geographic and domestic/international results are then unavailable. Default horizons are 12–18 months; `--horizons` accepts 1–24, but alternate horizons require their own backtest. `--fast` is a development smoke run, not final evidence. Default forecasts skip expensive explanations/scenarios; use `--full-details` after validating the minimal run.
+`--passenger-only` explicitly permits a run without airport metadata; geographic and domestic/international results are then unavailable. The submission run is `configs/release.json`: horizons 12–24, with a horizon omitted when its target month is not in the extract yet. A bare `backtest` command still uses 12–18 months and a three-month origin step; pass the release config to reproduce the submitted numbers. `--fast` is a development smoke run, not final evidence. Default forecasts skip expensive explanations/scenarios; use `--full-details` after validating the minimal run.
 
 External features are excluded by default. The imported fetchers support the supplementary Census/FAA/county sources, but source releases and historical vintages require review before a historical-availability claim. Use `fetch` to inspect local source retrieval status and `--external` only for an explicitly reviewed experiment.
 

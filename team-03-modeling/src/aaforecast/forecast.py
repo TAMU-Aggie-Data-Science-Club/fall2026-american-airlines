@@ -1,4 +1,4 @@
-"""Produce the 12 to 18 month planning forecast and its companion views."""
+"""Produce the planning forecast and its companion views."""
 
 from __future__ import annotations
 
@@ -106,7 +106,7 @@ def hub_summary(rows: pd.DataFrame, bridge: pd.DataFrame, aggregate_table: pd.Da
 
 
 def watchlist(rows: pd.DataFrame, min_ttm: float = 5_000, threshold: float = 0.08) -> pd.DataFrame:
-    """Markets whose 12 to 18 month outlook departs most from their seasonal anchor.
+    """Markets whose forecast-window outlook departs most from their seasonal anchor.
 
     Flags compare the forecast window total with the anchor total, so they
     reflect what the model expects to change rather than last year's noise.

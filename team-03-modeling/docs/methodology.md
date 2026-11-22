@@ -4,7 +4,7 @@ Integration qualification: evaluation is retrospective, not an untouched holdout
 
 ## The Planning Question
 
-Network and schedule planning commit capacity about a year before departure. The question is: given everything known today, how many passengers will fly each O&D market in each month 12 to 18 months from now, how confident are we, and why?
+Network and schedule planning commit capacity about a year before departure. The question is: given everything known today, how many passengers will fly each O&D market in each month 12 to 24 months from now, how confident are we, and why?
 
 A useful answer has to do four things:
 
@@ -84,7 +84,7 @@ A scenario shifts the economy, fuel, or FX features at the origin and re-scores 
 
 | Check | Detail |
 | --- | --- |
-| Rolling origins | 2024-01, 2024-04, 2024-07, 2024-10, 2025-01, each scored on months 12 to 18 ahead |
+| Rolling origins | 2024-01, 2024-04, 2024-07, 2024-10, 2025-01. Horizons 12 to 24 are scored when the target month is already in the extract |
 | Metric | WAPE (total absolute error over total actual) and bias, at market, airport, hub, and network level |
 | Baselines | Seasonal anchor alone, same month last year, last year times trailing growth |
 | Significance | Wilcoxon signed-rank on per-market error differences and a market bootstrap for the WAPE gap |

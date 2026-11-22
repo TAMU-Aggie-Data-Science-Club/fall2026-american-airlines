@@ -1,6 +1,6 @@
 """Anchor and Adjust: seasonal anchor, network outlook, and market mix.
 
-For market m, origin month t, and horizon h (12 to 18 months):
+For market m, origin month t, and horizon h (12 to 24 months in the release run):
 
     anchor_m   = trailing 12-month level x the market's own seasonal shape
     network    = sum of anchors x (1 + network growth) ^ (h / 12)
@@ -11,7 +11,7 @@ Three layers, each with a plain-language meaning for network planning:
 
 1. The anchor is what the market looks like if nothing changes.
 2. The network outlook is a single growth number. It defaults to flat because
-   network-wide swings 12 to 18 months out are not reliably predictable from
+   network-wide swings a year or two ahead are not reliably predictable from
    seven years of history, and planners usually hold a corporate view anyway.
    It can be overridden with that view.
 3. The market mix is where the machine learning lives. One global model learns

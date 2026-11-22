@@ -26,6 +26,7 @@ reports/private/
 *.zip
 *.pdf
 *.png
+!visuals/wape_by_horizon.png
 *.jpg
 *.jpeg
 *.webp

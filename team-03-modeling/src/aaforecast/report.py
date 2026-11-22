@@ -99,7 +99,7 @@ def backtest_report(res: dict[str, pd.DataFrame], out_dir: Path) -> str:
         "## Weight On The Learned Market Mix",
         md_table(cal, {"shrink": ".2f", "wape": ".2%"}),
         "",
-        "Each fold used the weight that scored best on earlier folds only. The forecast uses the best weight overall.",
+        "This table is the average diagnostic error at each weight on the outer folds. Each scored fold is allowed only a weight chosen from earlier matured outcomes, so it can stay at zero even when the table prefers another weight. The forward forecast uses the weight selected once those outcomes have matured.",
         "",
         "## Prediction Interval Coverage (Held-Out Folds)",
         md_table(res["interval_coverage"], {"coverage": ".1%", "volume_weighted_coverage": ".1%"}),

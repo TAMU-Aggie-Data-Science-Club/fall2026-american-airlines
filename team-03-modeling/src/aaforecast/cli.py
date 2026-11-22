@@ -13,7 +13,7 @@ COMMANDS = ["validate", "fetch", "fetch-airports", "eda", "backtest", "forecast"
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(prog="aaforecast", description="12 to 18 month O&D demand forecasting")
+    ap = argparse.ArgumentParser(prog="aaforecast", description="O&D passenger forecasting. The release configuration scores 12 to 24 months.")
     ap.add_argument("command", choices=COMMANDS)
     ap.add_argument("--target", choices=["pax", "rev"], default="pax", help="forecast passengers or revenue")
     ap.add_argument("--fast", action="store_true", help="largest markets only, for quick iteration")
