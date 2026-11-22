@@ -2,7 +2,9 @@
 
 Code: `notebooks/two_year_forecast.ipynb`, sections 3–4. **NDA:** rounded numbers only.
 
-Reproducibility run: November 21, 2026, using the supplied feature-set, comparison, and forecast notebooks.
+Final run: November 22, 2026 (headline results, interval coverage, network total, feature importance). The
+horizon, residual, segment and history diagnostics below are from the November 21 reproducibility run; the
+baseline's network total differs between the two runs and has not been reconciled.
 
 ## Test design
 
@@ -22,24 +24,24 @@ WAPE is a percentage; MAE and RMSE are rounded passengers per route-month. Lower
 
 | Period | Model WAPE | Baseline WAPE | Model MAE | Baseline MAE | Model RMSE | Baseline RMSE |
 |---|---|---|---|---|---|---|
-| All 24 months | 22.96% | 19.83% | 723 | 624 | 1,808 | 1,564 |
-| Year 1 (months 1–12) | 18.99% | 18.10% | 617 | 589 | 1,546 | 1,432 |
-| Year 2 (months 13–24) | 27.20% | 21.68% | 828 | 660 | 2,036 | 1,686 |
+| All 24 months | 23.5% | 19.8% | 717 | 621 | 1,859 | 1,652 |
+| Year 1 (months 1–12) | 19.0% | 18.0% | 581 | 565 | 1,422 | 1,365 |
+| Year 2 (months 13–24) | 28.0% | 21.7% | 853 | 677 | 2,211 | 1,895 |
 
-**The baseline wins overall and in both years on all three metrics.** Model WAPE is 3.13 percentage points worse
-overall and rises by 8.21 points from year 1 to year 2. Winning the comparison between tree losses did not mean
+**The baseline wins overall and in both years on all three metrics.** Model WAPE is about 3.7 percentage points worse
+overall; year 1 is close (about 1 point behind) but the gap widens to about 6 points in year 2. Winning the comparison between tree losses did not mean
 beating the seasonal baseline.
 
-- **80% prediction interval coverage:** 57.2%, well below the nominal 80%. The bands under-cover and cannot be
-  presented as calibrated 80% intervals. The median ratio of band width to the median prediction is 0.64.
-- **Network total over 24 months:** model **+11.6%**, baseline **+0.6%**; both over-forecast. Net totals allow
+- **80% prediction interval coverage:** 77.3%, close to the nominal 80% (slightly narrow). The median band width
+  is about 0.92 times the median prediction.
+- **Network total over 24 months:** model **+12.1%** (over-forecast), baseline **−5.6%** (under-forecast). Net totals allow
   over- and under-forecasts to cancel, so they do not replace route-month WAPE.
 
 ## Diagnostics (charts in `data/visuals/`, local only)
 
 - **Observed vs forecast (`observed_vs_forecast.png`):** the forecast follows some monthly variation (correlation
   0.62 with observed network totals), but exceeds actual demand in 23 of 24 months. The main issue is upward bias,
-  consistent with the +11.6% total error.
+  consistent with the +12.1% total error.
 - **Error by months ahead (`error_by_horizon.png`):** error generally increases with the horizon. Monthly model
   WAPE ranges from 15.36% to 37.14%, with the worst result at month 23. It beats the baseline in only 5 of 24 months;
   year 2 is materially worse than year 1.
@@ -50,9 +52,8 @@ beating the seasonal baseline.
   medium routes (32.16%) and large routes (21.69%). International routes are harder than domestic routes (31.89%
   versus 20.24%). The baseline wins in every reported segment. Large routes carry 89.4% of passengers, so aggregate
   WAPE gives little weight to the small-route problem.
-- **Feature importance (`feature_importance.png`):** the two-years-ago passenger value has the highest normalized
-  gain (43.1%). Origin and destination airports follow (12.6% and 12.2%), then the international flag (11.3%) and
-  time trend (9.8%). These gain scores describe model reliance, not causal effects or passenger shares.
+- **Feature importance (`feature_importance.png`, final run):** the two-years-ago passenger value has the highest
+  share of gain (about 46%), then the international flag (about 13%) and the origin airport (about 10%). These gain scores describe model reliance, not causal effects or passenger shares.
 - **Forward forecast (`two_year_forecast.png`):** the next 24 months are model projections. Forecast year 1 is
   +1.1% versus the last observed 12 months, and year 2 is −3.3% versus forecast year 1. Neither change has been
   validated against future observations.
@@ -64,9 +65,9 @@ pool spans about **5.6 years**, including the six months reserved for early stop
 for 63.1% of training route-months and 99.9% of test route-months.
 
 That supports constructing the lagged features, but **does not establish that this model improves a two-year
-forecast**. Year-2 WAPE is 27.20% versus the baseline's 21.68%, and interval coverage is inadequate. The honest
+forecast**. Year-2 WAPE is 28.0% versus the baseline's 21.7%, although interval coverage is close to nominal. The honest
 claim is that the pipeline produces a 24-month forecast for a specified route roster; this run does not justify
-replacing the seasonal baseline or treating its uncertainty bands as reliable.
+replacing the seasonal baseline.
 
 ## Limitations
 

@@ -44,7 +44,7 @@
 | Column | Missing (rounded) | Random or tied to something? | Handling |
 |---|---|---|---|
 | Passenger table columns | none | — | none needed |
-| `STATE_PROVNC_CD` (airport table) | *(rounded %)* | tied to airports outside US/Canada | fill `"INTL"` (not used in the model for now) |
+| `STATE_PROVNC_CD` (airport table) | about 83% | tied to airports outside US/Canada | fill `"INTL"` (not used in the model for now) |
 | Missing route-months | a share of routes skip some months | tied to route (seasonal / new / dropped routes) | left missing, not zero (open PM question); lag features are missing + a `route_seen_*` flag |
 
 ## Date features — Akshith
