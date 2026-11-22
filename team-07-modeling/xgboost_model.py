@@ -30,7 +30,10 @@ FEATURES = [
     "pax_2019_same_month", "level12_vs_2019", "yield_12",
     "org_level_12", "des_level_12", "months_seen_12",
     "distance_mi", "domestic", "ORG_AIRPRT", "DES_AIRPRT",
+    "org_runway_ft", "des_runway_ft", "org_world_area", "des_world_area", "org_country", "des_country",
+    "covid_months_in_history",
 ]
+COVID_MONTHS = pd.date_range("2020-03-01", "2021-12-01", freq="MS")
 
 
 def find_repo_root():
@@ -97,6 +100,12 @@ def build_features(pax, airports, origins, horizon=HORIZON, max_target=None):
     distance_mi = 3958.8 * 2 * np.arcsin(np.sqrt(hav))
     domestic = ((a["CNTRY_CD"].loc[org].to_numpy() == "US") & (a["CNTRY_CD"].loc[des].to_numpy() == "US")).astype(int)
     airport_codes = sorted(set(org) | set(des))
+    countries = sorted(a["CNTRY_CD"].dropna().unique())
+    airport_attrs = {}
+    for end, codes in (("org", org), ("des", des)):
+        airport_attrs[f"{end}_runway_ft"] = pd.to_numeric(a["LNGST_RUNWAY_FT_QTY"].reindex(codes), errors="coerce").to_numpy()
+        airport_attrs[f"{end}_world_area"] = pd.to_numeric(a["WRLD_AREA_DOT_CD"].reindex(codes), errors="coerce").to_numpy()
+        airport_attrs[f"{end}_country"] = pd.Categorical(a["CNTRY_CD"].reindex(codes).to_numpy(), categories=countries)
 
     parts = []
     for origin in origins:
@@ -104,6 +113,7 @@ def build_features(pax, airports, origins, horizon=HORIZON, max_target=None):
         level_12 = _row_mean(P[:, o - 11:o + 1])
         level_3 = _row_mean(P[:, o - 2:o + 1])
         level_12_prev = _row_mean(P[:, o - 23:o - 11]) if o >= 23 else np.full(len(P), np.nan)
+        covid_in_history = int(((COVID_MONTHS > months[o] - pd.DateOffset(months=12)) & (COVID_MONTHS <= months[o])).sum())
         for h in range(1, horizon + 1):
             t = o + h
             if t >= len(months) or (max_target is not None and months[t] > max_target):
@@ -130,6 +140,8 @@ def build_features(pax, airports, origins, horizon=HORIZON, max_target=None):
                 "domestic": domestic,
                 "ORG_AIRPRT": pd.Categorical(org, categories=airport_codes),
                 "DES_AIRPRT": pd.Categorical(des, categories=airport_codes),
+                **airport_attrs,
+                "covid_months_in_history": covid_in_history,
                 "network_naive": network[same_col],
                 TARGET: P[:, t],
             }))
@@ -151,6 +163,12 @@ def score(actual, predicted):
 def naive_forecast(df):
     return (df["last_same_month"].fillna(df["level_12"]).fillna(df["pax_2019_same_month"])
             .fillna(df["level_12"].median()))
+
+
+def route_weight(df):
+    """WAPE counts every passenger, so bigger routes get more say in training (square root keeps small routes in play)."""
+    level = df["level_12"].fillna(df["level_12"].median())
+    return np.sqrt(level).to_numpy()
 
 
 def reconcile(df, pred):
@@ -195,8 +213,11 @@ def main():
 
     fit = train["DATE"] < VAL_START
     val = (train["ORIGIN"] < VAL_START) & (train["DATE"] >= VAL_START)
-    d_fit = xgb.DMatrix(train.loc[fit, FEATURES], np.log1p(train.loc[fit, TARGET]), enable_categorical=True)
-    d_val = xgb.DMatrix(train.loc[val, FEATURES], np.log1p(train.loc[val, TARGET]), enable_categorical=True)
+    weight = route_weight(train)
+    d_fit = xgb.DMatrix(train.loc[fit, FEATURES], np.log1p(train.loc[fit, TARGET]), weight=weight[fit],
+                        enable_categorical=True)
+    d_val = xgb.DMatrix(train.loc[val, FEATURES], np.log1p(train.loc[val, TARGET]), weight=weight[val],
+                        enable_categorical=True)
     search = xgb.train(PARAMS, d_fit, num_boost_round=3000, evals=[(d_val, "val")],
                        early_stopping_rounds=100, verbose_eval=False)
     n_trees = search.best_iteration + 1
@@ -205,8 +226,8 @@ def main():
     val_pred = reconcile(val_df, np.expm1(search.predict(d_val, iteration_range=(0, n_trees))))
     bands, edges = interval_bands(val_df, val_pred)
 
-    model = xgb.train(PARAMS, xgb.DMatrix(train[FEATURES], np.log1p(train[TARGET]), enable_categorical=True),
-                      num_boost_round=n_trees)
+    model = xgb.train(PARAMS, xgb.DMatrix(train[FEATURES], np.log1p(train[TARGET]), weight=weight,
+                                          enable_categorical=True), num_boost_round=n_trees)
     test["xgb_raw"] = np.expm1(model.predict(xgb.DMatrix(test[FEATURES], enable_categorical=True)))
     test["forecast"] = reconcile(test, test["xgb_raw"])
     test["low"], test["high"] = apply_bands(test, test["forecast"].to_numpy(), bands, edges)
