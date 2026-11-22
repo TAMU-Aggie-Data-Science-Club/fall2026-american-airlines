@@ -179,23 +179,26 @@ def reconcile(df, pred):
     return (tmp["pred"] * g["naive"].transform("sum") / g["pred"].transform("sum")).to_numpy()
 
 
+def _band_keys(df, edges):
+    return list(zip(np.where(df["h"] <= 12, 1, 2), np.searchsorted(edges, df["level_12"].fillna(0).to_numpy())))
+
+
 def interval_bands(val_df, val_pred):
-    """10th/90th percentile of actual/forecast on validation, by forecast year and route size."""
-    ratio = np.log(val_df[TARGET].to_numpy()) - np.log(val_pred)
-    keys = pd.DataFrame({"year": np.where(val_df["h"] <= 12, 1, 2),
-                         "size": pd.qcut(val_df["level_12"].rank(method="first"), 3, labels=False),
-                         "r": ratio})
+    """Half-width = 80th percentile of |log(actual/forecast)| on validation, by forecast year and route size.
+
+    Symmetric on purpose: validation (2023-24) misses lean upward because traffic was still recovering,
+    and reconciliation already removes that growth from the point forecast.
+    """
     edges = val_df["level_12"].quantile([1 / 3, 2 / 3]).to_numpy()
-    bands = keys.groupby(["year", "size"])["r"].quantile(list(INTERVAL)).unstack()
-    return bands, edges
+    abs_err = np.abs(np.log(val_df[TARGET].to_numpy()) - np.log(val_pred))
+    keys = pd.MultiIndex.from_tuples(_band_keys(val_df, edges), names=["year", "size"])
+    half = pd.Series(abs_err, index=keys).groupby(level=["year", "size"]).quantile(INTERVAL[1] - INTERVAL[0])
+    return half, edges
 
 
-def apply_bands(df, pred, bands, edges):
-    size = np.searchsorted(edges, df["level_12"].fillna(0).to_numpy())
-    year = np.where(df["h"] <= 12, 1, 2)
-    lo = bands.loc[list(zip(year, size)), INTERVAL[0]].to_numpy()
-    hi = bands.loc[list(zip(year, size)), INTERVAL[1]].to_numpy()
-    return pred * np.exp(lo), pred * np.exp(hi)
+def apply_bands(df, pred, half, edges):
+    h = half.loc[_band_keys(df, edges)].to_numpy()
+    return pred * np.exp(-h), pred * np.exp(h)
 
 
 def main():
