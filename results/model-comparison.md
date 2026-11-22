@@ -28,3 +28,10 @@
 - **Model Limitations & Risks:** 
   - *Recursive Drift:* While mitigated by seasonal weighting, multi-step recursive forecasting over extended horizons remains sensitive to sudden external macroeconomic shocks (e.g., fuel price spikes or severe weather anomalies).
   - *Exogenous Lag Dependency:* Public demographic and FAA datasets lag by 12 months, meaning sudden localized shifts in urban migration may take time to reflect in feature weights.
+
+### 5. Two-Year Forecast Horizon & Scope Assessment
+--------------------------------------------------------------------------------
+Our evaluation tests a 24-month recursive forecast horizon (August 2024 – July 2026) using out-of-sample holdout testing and rolling-origin cross-validation rather than single-step next-month predictions. 
+This horizon is supported for directional, seasonally anchored network planning under normal operating conditions because historical passenger demand (OD_PAX) captures full annual seasonal cycles alongside rolling_mean_12, lag features, and winter trough adjustments. 
+However, accuracy is stronger in Year 1 than Year 2 due to recursive error propagation across sequential steps, reliance on static or lagged external baselines (FAA enplanement trends and Census CBSA metro population/migration figures), a historical window starting in 2019 that includes the COVID-19 disruption and recovery, 
+and sensitivity to unmodeled shocks such as fuel spikes, capacity shifts, or severe weather. Accordingly, the forecast is best used to inform medium-range capacity and planning ranges alongside 80%/95% prediction intervals rather than exact point commitments far into the second year.
