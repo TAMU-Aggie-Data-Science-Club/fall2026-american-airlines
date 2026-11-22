@@ -30,21 +30,20 @@ Each forecast is made from a *forecast date* (the last month the model may see) 
 
 ## Results on the 2024-07 test forecast
 
-| Candidate | Owner | WAPE (2 yrs) | Year 1 | Year 2 | RMSE | Bias | Status |
-|---|---|---|---|---|---|---|---|
-| Seasonal naive (same month, latest year) | baseline | 18.3% | 15.1% | 21.7% | 1,473 | +4.1% | done |
-| XGBoost, raw | Kingston | 20.1% | 14.7% | 25.9% | 1,626 | +11.3% | done |
-| **XGBoost, reconciled to naive network total** | Kingston | **17.3%** | **13.9%** | **21.0%** | **1,390** | +4.1% | done |
-| *(teammate candidate)* | *TBD* | | | | | | *pending* |
-| *(teammate candidate)* | *TBD* | | | | | | *pending* |
+| Candidate | WAPE (2 yrs) | Year 1 | Year 2 | RMSE | Bias |
+|---|---|---|---|---|---|
+| Seasonal naive (same month, latest year) | 18.3% | 15.1% | 21.7% | 1,473 | +4.1% |
+| Teammate XGBoost (`XGBoost_model.ipynb`), rebuilt on the shared test | 21.6% | 18.4% | 25.0% | 1,667 | +8.9% |
+| XGBoost, raw | 20.0% | 14.6% | 25.8% | 1,624 | +11.6% |
+| **XGBoost, reconciled to naive network total (final)** | **17.1%** | **13.7%** | **20.8%** | **1,379** | +4.1% |
 
-Rolling-origin check, average over the 5 forecast dates: **XGBoost 16.1% vs naive 16.9%**. XGBoost
-was better in both year 1 and year 2 at every date.
+Rolling-origin check, average over the 5 forecast dates: **final model 15.8% vs naive 16.9%**. It beat
+naive in both year 1 and year 2 at every date.
 
-By route size (2024-07 test): smallest half of routes 29.6% vs 33.5% naive, middle 40% 21.9% vs 22.8%,
-top 10% (62% of passengers) 13.9% vs 14.7%.
+By route size (2024-07 test): smallest half of routes 29.2% vs 33.5% naive, middle 40% 21.6% vs 22.8%,
+top 10% (62% of passengers) 13.8% vs 14.7%.
 
-80% prediction ranges: 82.6% of actual values fell inside in year 1, 80.6% in year 2.
+80% prediction ranges: 82.6% of actual values fell inside in year 1, 81.1% in year 2.
 
 ## Trade-offs
 
@@ -55,6 +54,13 @@ that is clearly growing or shrinking, and it gives no ranges.
 missing months without special treatment, trains in under a minute, and shows feature importance. Its
 weakness is that trees cannot extrapolate: trained on 2022–2024, a recovery period, the raw model
 learned growth and forecast 18% too many passengers in year 2.
+
+**Teammate XGBoost.** Built to help improve the main model. Its route history features (all-time route
+average, all-time same-month average, months reported) were added to the final model, where they
+improved both validation (17.29% → 17.23%) and test (17.31% → 17.11%). On its own it trails naive: it
+trains on raw counts, so it predicts negative passengers for roughly 900–3,800 route-months per forecast,
+and it uses the year as a number, which trees cannot extend past the training years. Blending it in at
+25% gained only 0.1 points, so the final model does not include it.
 
 **Why reconciled.** XGBoost decides how passengers split across routes. The network total comes from
 seasonal naive, and each month's route forecasts are scaled to add up to it. This removes the learned
@@ -76,8 +82,10 @@ network growth or decline; that comes entirely from the naive total.
 | LSTM | Not run: 91 months per route with COVID in the middle is too little clean history |
 | ARIMA per route | Not run by Kingston: ~17,000 separate fits; open for a teammate on top routes or network totals |
 
-Kept from teammates: Xiaojie's airport attributes per route end and Ranbin's COVID-history flag. They
-helped once reconciliation was in place.
+| Blending in the teammate model at 25% | 17.1% → 17.0% on test; too small to justify a second model |
+
+Kept from teammates: Xiaojie's airport attributes per route end and Ranbin's COVID-history flag (they
+helped once reconciliation was in place), plus the route history features from `XGBoost_model.ipynb`.
 
 ## How to reproduce
 

@@ -28,6 +28,7 @@ FEATURES = [
     "distance_mi", "domestic", "ORG_AIRPRT", "DES_AIRPRT",
     "org_runway_ft", "des_runway_ft", "org_world_area", "des_world_area", "org_country", "des_country",
     "covid_months_in_history",
+    "route_hist_mean", "route_hist_count", "route_month_hist_mean",
 ]
 COVID_MONTHS = pd.date_range("2020-03-01", "2021-12-01", freq="MS")
 
@@ -110,6 +111,9 @@ def build_features(pax, airports, origins, horizon=HORIZON, max_target=None, fut
         level_3 = _row_mean(P[:, o - 2:o + 1])
         level_12_prev = _row_mean(P[:, o - 23:o - 11]) if o >= 23 else np.full(len(P), np.nan)
         covid_in_history = int(((COVID_MONTHS > months[o] - pd.DateOffset(months=12)) & (COVID_MONTHS <= months[o])).sum())
+        route_hist_mean = _row_mean(P[:, :o + 1])
+        route_hist_count = np.isfinite(P[:, :o + 1]).sum(axis=1)
+        month_hist_mean = {m: _row_mean(P[:, [j for j in range(o + 1) if months[j].month == m]]) for m in range(1, 13)}
         for h in range(1, horizon + 1):
             t = o + h
             if t >= len(months) or (max_target is not None and months[t] > max_target):
@@ -138,6 +142,9 @@ def build_features(pax, airports, origins, horizon=HORIZON, max_target=None, fut
                 "DES_AIRPRT": pd.Categorical(des, categories=airport_codes),
                 **airport_attrs,
                 "covid_months_in_history": covid_in_history,
+                "route_hist_mean": route_hist_mean,
+                "route_hist_count": route_hist_count,
+                "route_month_hist_mean": np.where(np.isnan(month_hist_mean[month]), route_hist_mean, month_hist_mean[month]),
                 "network_naive": network[same_col],
                 TARGET: P[:, t],
             }))
