@@ -1,0 +1,5 @@
+# The notebook writes forecasts and charts derived from NDA data next to itself.
+*.csv
+*.png
+*.xlsx
+*.zip
