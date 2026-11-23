@@ -1,0 +1,64 @@
+/Users/srilasyakamma/Desktop/fall2026-american-airlines/team-07-modeling/models/xgboost_model.py:56: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/dev/user_guide/migration.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  for c in df.select_dtypes(include="object"):
+/Users/srilasyakamma/Desktop/fall2026-american-airlines/team-07-modeling/models/xgboost_model.py:56: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/dev/user_guide/migration.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  for c in df.select_dtypes(include="object"):
+train: 5,132,612 rows, 24 forecast dates, targets 2022-08 to 2024-07
+test:  410,481 rows, one forecast made at 2024-07 for 2024-08 to 2026-07
+trees: 164, run time so far: 83s
+
+test results
+                                              WAPE      MAE      RMSE   bias
+seasonal naive             all 24 months     0.183  575.196  1472.835  0.041
+XGBoost raw                all 24 months     0.200  628.522  1619.050  0.115
+XGBoost reconciled (final) all 24 months     0.171  538.621  1379.117  0.041
+seasonal naive             year 1 (h 1-12)   0.151  490.648  1222.590  0.007
+XGBoost raw                year 1 (h 1-12)   0.146  473.992  1191.535  0.053
+XGBoost reconciled (final) year 1 (h 1-12)   0.137  445.026  1129.245  0.007
+seasonal naive             year 2 (h 13-24)  0.217  659.779  1686.430  0.076
+XGBoost raw                year 2 (h 13-24)  0.257  783.117  1955.351  0.182
+XGBoost reconciled (final) year 2 (h 13-24)  0.208  632.254  1590.282  0.076 
+
+average monthly network-total miss: {'naive': 0.06, 'forecast': 0.06} 
+
+80% interval coverage on test: {'year 1': 0.826, 'year 2': 0.81, 'all': 0.818} | median width as share of forecast: 0.801 
+
+feature importance (gain):
+route_month_hist_mean      2363883.5
+last_same_month             896981.4
+level_12                    643828.5
+level_3                      69758.0
+route_hist_mean              48169.5
+pax_2019_same_month          17998.7
+growth_12                     4273.9
+domestic                      3564.9
+ORG_AIRPRT                    3117.6
+DES_AIRPRT                    2991.3
+month_cos                     2141.3
+h                             1905.3
+month_sin                     1837.5
+level12_vs_2019               1812.4
+same_vs_level12               1696.1
+route_hist_count              1586.8
+covid_months_in_history       1354.4
+des_country                   1300.7
+org_country                   1248.0
+distance_mi                   1107.0
+yield_12                       883.7
+level3_vs_level12              731.7
+des_world_area                 616.1
+des_level_12                   598.6
+des_runway_ft                  563.9
+org_level_12                   529.7
+org_world_area                 489.1
+org_runway_ft                  390.0
+months_seen_12                 304.3 
+
+saved test forecast to team-07-modeling/models/xgboost_test_forecast.csv (git-ignored)
+
+two-year forecast made at 2026-07 for 2026-08 to 2028-07: 17,119 routes, trained on 48 forecast dates (14,984,156 rows)
+forecast total vs the last 12 actual months: {'year 1': '+0.0%', 'year 2': '+0.0%'}
+saved to team-07-modeling/models/xgboost_forecast_2026-08_to_2028-07.csv (git-ignored)
+
+total time: 255s
